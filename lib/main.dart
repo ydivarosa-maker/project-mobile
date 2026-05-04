@@ -68,11 +68,11 @@ class DesktopLayout extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      // Logo dari Google / Internet
+                      // Logo dari Melodya
                       ClipRRect(
                         borderRadius: BorderRadius.circular(12),
                         child: Image.network(
-                          'https://cdn-icons-png.flaticon.com/512/3004/3004312.png',
+                          'https://cdn-icons-png.flaticon.com/512/3844/3844724.png',
                           width: 50,
                           height: 50,
                           errorBuilder: (context, error, stackTrace) =>
