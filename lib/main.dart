@@ -202,6 +202,31 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
   int _currentIndex = 0;
   String _selectedCategory = 'Untukmu';
 
+  // State untuk menyimpan lagu favorit (berdasarkan judul lagu)
+  final Set<String> _favorites = {};
+
+  // Data semua track yang tersedia
+  static const List<Map<String, dynamic>> _allTracks = [
+    {'title': 'Melodi Cinta', 'subtitle': 'Artis A', 'icon': Icons.music_note, 'color': Color(0xFF8B5CF6)},
+    {'title': 'Senja Hari', 'subtitle': 'Band Indie', 'icon': Icons.library_music, 'color': Color(0xFFD946EF)},
+    {'title': 'Pagi Cerah', 'subtitle': 'Penyanyi C', 'icon': Icons.album, 'color': Color(0xFF3B82F6)},
+    {'title': 'Kisah Sukses', 'subtitle': 'Podcast Motivasi', 'icon': Icons.mic, 'color': Color(0xFF3B82F6)},
+    {'title': 'Obrolan Malam', 'subtitle': 'Podcast Horor', 'icon': Icons.mic_external_on, 'color': Color(0xFF10B981)},
+    {'title': 'Dunia Tech', 'subtitle': 'Podcast IT', 'icon': Icons.headset_mic, 'color': Color(0xFFF59E0B)},
+    {'title': 'Pagi Ceria', 'subtitle': 'Radio FM Nasional', 'icon': Icons.radio, 'color': Color(0xFFF59E0B)},
+    {'title': 'Sore Santai', 'subtitle': 'Hits Radio Lokal', 'icon': Icons.radio, 'color': Color(0xFFEF4444)},
+  ];
+
+  void _toggleFavorite(String title) {
+    setState(() {
+      if (_favorites.contains(title)) {
+        _favorites.remove(title);
+      } else {
+        _favorites.add(title);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -529,6 +554,11 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
     }
   }
 
+  // Daftar lagu favorit untuk halaman Koleksi
+  List<Map<String, dynamic>> get _favoriteTracks {
+    return _allTracks.where((t) => _favorites.contains(t['title'])).toList();
+  }
+
   // ==========================================
   // Halaman 2: PENCARIAN
   // ==========================================
@@ -586,6 +616,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
   // Halaman 3: KOLEKSI
   // ==========================================
   Widget _buildCollectionContent() {
+    final favTracks = _favoriteTracks;
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Column(
@@ -596,47 +627,100 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
             style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 20),
-          Expanded(
-            child: ListView(
+
+          // --- Header Lagu Favorit ---
+          Container(
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFFD946EF), Color(0xFF8B5CF6)],
+              ),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Row(
               children: [
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFD946EF), Color(0xFF8B5CF6)],
-                      ),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(Icons.favorite, color: Colors.white),
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  title: const Text(
-                    'Lagu yang Disukai',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: const Text('128 lagu'),
+                  child: const Icon(Icons.favorite, color: Colors.white, size: 28),
                 ),
-                const SizedBox(height: 16),
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: Colors.white10,
-                      borderRadius: BorderRadius.circular(8),
+                const SizedBox(width: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Lagu yang Disukai',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),
                     ),
-                    child: const Icon(Icons.add, color: Colors.white),
-                  ),
-                  title: const Text(
-                    'Buat Playlist Baru',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                    Text(
+                      '${favTracks.length} lagu',
+                      style: const TextStyle(color: Colors.white70, fontSize: 13),
+                    ),
+                  ],
                 ),
               ],
             ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // --- Daftar lagu favorit ---
+          Expanded(
+            child: favTracks.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.favorite_border,
+                          size: 64,
+                          color: const Color(0xFFD946EF).withOpacity(0.5),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Belum ada lagu favorit',
+                          style: TextStyle(fontSize: 16, color: Colors.white54),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Tekan ❤️ pada lagu di halaman Home\nuntuk menambahkannya ke sini.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 13, color: Colors.white38),
+                        ),
+                      ],
+                    ),
+                  )
+                : ListView(
+                    children: [
+                      ...favTracks.map((track) => _buildTrackItem(
+                            track['title'] as String,
+                            track['subtitle'] as String,
+                            track['icon'] as IconData,
+                            track['color'] as Color,
+                          )),
+                      const SizedBox(height: 16),
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: Container(
+                          width: 50,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.white10,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(Icons.add, color: Colors.white),
+                        ),
+                        title: const Text(
+                          'Buat Playlist Baru',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
           ),
         ],
       ),
@@ -689,6 +773,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
     IconData icon,
     Color color,
   ) {
+    final isFav = _favorites.contains(title);
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: Container(
@@ -702,7 +787,27 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
       ),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
       subtitle: Text(subtitle, style: const TextStyle(color: Colors.white54)),
-      trailing: const Icon(Icons.more_vert, color: Colors.white54),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Tombol Favorite
+          GestureDetector(
+            onTap: () => _toggleFavorite(title),
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 250),
+              transitionBuilder: (child, anim) => ScaleTransition(scale: anim, child: child),
+              child: Icon(
+                isFav ? Icons.favorite : Icons.favorite_border,
+                key: ValueKey(isFav),
+                color: isFav ? const Color(0xFFD946EF) : Colors.white38,
+                size: 22,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          const Icon(Icons.more_vert, color: Colors.white54),
+        ],
+      ),
     );
   }
 
