@@ -17,8 +17,302 @@ class MelodyaApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFF0F172A),
         primaryColor: const Color(0xFFD946EF),
       ),
-      home: const ResponsiveLandingPage(),
+      home: const LoginPage(),
     );
+  }
+}
+
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmController = TextEditingController();
+  String? _selectedGender;
+
+  bool _isPasswordVisible = false;
+  bool _isConfirmVisible = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: RadialGradient(
+            center: Alignment(0.5, -0.5),
+            radius: 1.5,
+            colors: [
+              Color(0xFFD946EF), // Pink
+              Color(0xFF0F172A), // Gelap
+            ],
+            stops: [0.0, 0.8],
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 400),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Logo & Title
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white10,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: Colors.white24),
+                    ),
+                    child: const Icon(
+                      Icons.music_note,
+                      color: Color(0xFFD946EF),
+                      size: 60,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Melodya',
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Daftar akun untuk mulai menikmati musik',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.white54, fontSize: 16),
+                  ),
+                  const SizedBox(height: 40),
+
+                  // Form
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _buildInputField(
+                          controller: _emailController,
+                          label: 'Akun Email',
+                          icon: Icons.email_outlined,
+                          keyboardType: TextInputType.emailAddress,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) return 'Email tidak boleh kosong';
+                            if (!value.contains('@')) return 'Email tidak valid';
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        _buildInputField(
+                          controller: _usernameController,
+                          label: 'Nama Pengguna',
+                          icon: Icons.person_outline,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) return 'Username tidak boleh kosong';
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        _buildInputField(
+                          controller: _phoneController,
+                          label: 'Nomor Telepon',
+                          icon: Icons.phone_outlined,
+                          keyboardType: TextInputType.phone,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) return 'Nomor telepon tidak boleh kosong';
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        _buildGenderDropdown(),
+                        const SizedBox(height: 20),
+                        _buildInputField(
+                          controller: _passwordController,
+                          label: 'Kata Sandi',
+                          icon: Icons.lock_outline,
+                          isPassword: true,
+                          isVisible: _isPasswordVisible,
+                          onToggleVisibility: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) return 'Kata sandi tidak boleh kosong';
+                            if (value.length < 6) return 'Minimal 6 karakter';
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        _buildInputField(
+                          controller: _confirmController,
+                          label: 'Konfirmasi Kata Sandi',
+                          icon: Icons.lock_clock_outlined,
+                          isPassword: true,
+                          isVisible: _isConfirmVisible,
+                          onToggleVisibility: () => setState(() => _isConfirmVisible = !_isConfirmVisible),
+                          validator: (value) {
+                            if (value != _passwordController.text) return 'Kata sandi tidak cocok';
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 40),
+
+                        // Button Masuk
+                        Container(
+                          height: 55,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFFD946EF), Color(0xFF8B5CF6)],
+                            ),
+                            borderRadius: BorderRadius.circular(15),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFFD946EF).withOpacity(0.3),
+                                blurRadius: 10,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          child: ElevatedButton(
+                            onPressed: _handleLogin,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                            ),
+                            child: const Text(
+                              'Masuk',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        TextButton(
+                          onPressed: () {
+                            // Simulasi pindah ke halaman lain jika ada
+                          },
+                          child: const Text(
+                            'Sudah punya akun? Masuk di sini',
+                            style: TextStyle(color: Colors.white54),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInputField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    bool isPassword = false,
+    bool isVisible = false,
+    VoidCallback? onToggleVisibility,
+    TextInputType? keyboardType,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: isPassword && !isVisible,
+      keyboardType: keyboardType,
+      validator: validator,
+      style: const TextStyle(color: Colors.white),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: Colors.white54),
+        prefixIcon: Icon(icon, color: const Color(0xFFD946EF)),
+        suffixIcon: isPassword
+            ? IconButton(
+                icon: Icon(isVisible ? Icons.visibility : Icons.visibility_off, color: Colors.white54),
+                onPressed: onToggleVisibility,
+              )
+            : null,
+        filled: true,
+        fillColor: Colors.white.withOpacity(0.05),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: const BorderSide(color: Color(0xFFD946EF), width: 1),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+      ),
+    );
+  }
+
+  Widget _buildGenderDropdown() {
+    return DropdownButtonFormField<String>(
+      value: _selectedGender,
+      dropdownColor: const Color(0xFF1E293B),
+      style: const TextStyle(color: Colors.white),
+      decoration: InputDecoration(
+        labelText: 'Jenis Kelamin',
+        labelStyle: const TextStyle(color: Colors.white54),
+        prefixIcon: const Icon(Icons.wc, color: Color(0xFFD946EF)),
+        filled: true,
+        fillColor: Colors.white.withOpacity(0.05),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: const BorderSide(color: Color(0xFFD946EF), width: 1),
+        ),
+      ),
+      items: ['Laki-laki', 'Perempuan'].map((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+      onChanged: (newValue) {
+        setState(() {
+          _selectedGender = newValue;
+        });
+      },
+      validator: (value) => value == null ? 'Pilih jenis kelamin' : null,
+    );
+  }
+
+  void _handleLogin() {
+    if (_formKey.currentState!.validate()) {
+      // Tampilkan animasi loading singkat (opsional)
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Selamat datang, ${_usernameController.text}!'),
+          backgroundColor: const Color(0xFFD946EF),
+        ),
+      );
+
+      // Navigasi ke Landing Page
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const ResponsiveLandingPage()),
+      );
+    }
   }
 }
 
