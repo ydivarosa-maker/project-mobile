@@ -1,7 +1,26 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 
 void main() {
   runApp(const MelodyaApp());
+}
+
+class Playlist {
+  final String name;
+  final List<String> trackTitles;
+  final Color color;
+  final IconData icon;
+
+  Playlist({
+    required this.name,
+    this.trackTitles = const [],
+    this.color = const Color(0xFFD946EF),
+    this.icon = Icons.playlist_play,
+  });
 }
 
 class MelodyaApp extends StatelessWidget {
@@ -17,304 +36,12 @@ class MelodyaApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFF0F172A),
         primaryColor: const Color(0xFFD946EF),
       ),
-      home: const LoginPage(),
+      home: const ResponsiveLandingPage(),
     );
   }
 }
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
 
-  @override
-  State<LoginPage> createState() => _LoginPageState();
-}
-
-class _LoginPageState extends State<LoginPage> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _usernameController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmController = TextEditingController();
-  String? _selectedGender;
-
-  bool _isPasswordVisible = false;
-  bool _isConfirmVisible = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: RadialGradient(
-            center: Alignment(0.5, -0.5),
-            radius: 1.5,
-            colors: [
-              Color(0xFFD946EF), // Pink
-              Color(0xFF0F172A), // Gelap
-            ],
-            stops: [0.0, 0.8],
-          ),
-        ),
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 400),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Logo & Title
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white10,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.white24),
-                    ),
-                    child: const Icon(
-                      Icons.music_note,
-                      color: Color(0xFFD946EF),
-                      size: 60,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  const Text(
-                    'Melodya',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 2,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Daftar akun untuk mulai menikmati musik',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white54, fontSize: 16),
-                  ),
-                  const SizedBox(height: 40),
-
-                  // Form
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _buildInputField(
-                          controller: _emailController,
-                          label: 'Akun Email',
-                          icon: Icons.email_outlined,
-                          keyboardType: TextInputType.emailAddress,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) return 'Email tidak boleh kosong';
-                            if (!value.contains('@')) return 'Email tidak valid';
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        _buildInputField(
-                          controller: _usernameController,
-                          label: 'Nama Pengguna',
-                          icon: Icons.person_outline,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) return 'Username tidak boleh kosong';
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        _buildInputField(
-                          controller: _phoneController,
-                          label: 'Nomor Telepon',
-                          icon: Icons.phone_outlined,
-                          keyboardType: TextInputType.phone,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) return 'Nomor telepon tidak boleh kosong';
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        _buildGenderDropdown(),
-                        const SizedBox(height: 20),
-                        _buildInputField(
-                          controller: _passwordController,
-                          label: 'Kata Sandi',
-                          icon: Icons.lock_outline,
-                          isPassword: true,
-                          isVisible: _isPasswordVisible,
-                          onToggleVisibility: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) return 'Kata sandi tidak boleh kosong';
-                            if (value.length < 6) return 'Minimal 6 karakter';
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        _buildInputField(
-                          controller: _confirmController,
-                          label: 'Konfirmasi Kata Sandi',
-                          icon: Icons.lock_clock_outlined,
-                          isPassword: true,
-                          isVisible: _isConfirmVisible,
-                          onToggleVisibility: () => setState(() => _isConfirmVisible = !_isConfirmVisible),
-                          validator: (value) {
-                            if (value != _passwordController.text) return 'Kata sandi tidak cocok';
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 40),
-
-                        // Button Masuk
-                        Container(
-                          height: 55,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFFD946EF), Color(0xFF8B5CF6)],
-                            ),
-                            borderRadius: BorderRadius.circular(15),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFFD946EF).withOpacity(0.3),
-                                blurRadius: 10,
-                                offset: const Offset(0, 5),
-                              ),
-                            ],
-                          ),
-                          child: ElevatedButton(
-                            onPressed: _handleLogin,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              shadowColor: Colors.transparent,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                            ),
-                            child: const Text(
-                              'Masuk',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        TextButton(
-                          onPressed: () {
-                            // Simulasi pindah ke halaman lain jika ada
-                          },
-                          child: const Text(
-                            'Sudah punya akun? Masuk di sini',
-                            style: TextStyle(color: Colors.white54),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInputField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    bool isPassword = false,
-    bool isVisible = false,
-    VoidCallback? onToggleVisibility,
-    TextInputType? keyboardType,
-    String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      obscureText: isPassword && !isVisible,
-      keyboardType: keyboardType,
-      validator: validator,
-      style: const TextStyle(color: Colors.white),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(color: Colors.white54),
-        prefixIcon: Icon(icon, color: const Color(0xFFD946EF)),
-        suffixIcon: isPassword
-            ? IconButton(
-                icon: Icon(isVisible ? Icons.visibility : Icons.visibility_off, color: Colors.white54),
-                onPressed: onToggleVisibility,
-              )
-            : null,
-        filled: true,
-        fillColor: Colors.white.withOpacity(0.05),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: const BorderSide(color: Color(0xFFD946EF), width: 1),
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-      ),
-    );
-  }
-
-  Widget _buildGenderDropdown() {
-    return DropdownButtonFormField<String>(
-      value: _selectedGender,
-      dropdownColor: const Color(0xFF1E293B),
-      style: const TextStyle(color: Colors.white),
-      decoration: InputDecoration(
-        labelText: 'Jenis Kelamin',
-        labelStyle: const TextStyle(color: Colors.white54),
-        prefixIcon: const Icon(Icons.wc, color: Color(0xFFD946EF)),
-        filled: true,
-        fillColor: Colors.white.withOpacity(0.05),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: const BorderSide(color: Color(0xFFD946EF), width: 1),
-        ),
-      ),
-      items: ['Laki-laki', 'Perempuan'].map((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(value),
-        );
-      }).toList(),
-      onChanged: (newValue) {
-        setState(() {
-          _selectedGender = newValue;
-        });
-      },
-      validator: (value) => value == null ? 'Pilih jenis kelamin' : null,
-    );
-  }
-
-  void _handleLogin() {
-    if (_formKey.currentState!.validate()) {
-      // Tampilkan animasi loading singkat (opsional)
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Selamat datang, ${_usernameController.text}!'),
-          backgroundColor: const Color(0xFFD946EF),
-        ),
-      );
-
-      // Navigasi ke Landing Page
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const ResponsiveLandingPage()),
-      );
-    }
-  }
-}
 
 class ResponsiveLandingPage extends StatelessWidget {
   const ResponsiveLandingPage({super.key});
@@ -499,16 +226,145 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
   // State untuk menyimpan lagu favorit (berdasarkan judul lagu)
   final Set<String> _favorites = {};
 
+  // State untuk menyimpan playlist buatan pengguna
+  final List<Playlist> _userPlaylists = [
+    Playlist(
+      name: 'Hits Indonesia',
+      trackTitles: ['GHOST', 'SORRY'],
+      color: const Color(0xFF8B5CF6),
+    ),
+  ];
+
+  // Audio Player State
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  String? _currentPlayingTitle;
+  bool _isPlaying = false;
+  Duration _duration = Duration.zero;
+  Duration _position = Duration.zero;
+
+  // Profile State
+  Uint8List? _profileImageBytes;
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickImage() async {
+    try {
+      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        final Uint8List bytes = await image.readAsBytes();
+        setState(() {
+          _profileImageBytes = bytes;
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Foto profil berhasil diperbarui!'),
+              backgroundColor: Color(0xFFD946EF),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal mengambil gambar: $e')),
+        );
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Listen to player state changes
+    _audioPlayer.onPlayerStateChanged.listen((state) {
+      if (mounted) {
+        setState(() {
+          _isPlaying = state == PlayerState.playing;
+        });
+      }
+    });
+
+    _audioPlayer.onDurationChanged.listen((newDuration) {
+      if (mounted) {
+        setState(() {
+          _duration = newDuration;
+        });
+      }
+    });
+
+    _audioPlayer.onPositionChanged.listen((newPosition) {
+      if (mounted) {
+        setState(() {
+          _position = newPosition;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
+  }
+
   // Data semua track yang tersedia
   static const List<Map<String, dynamic>> _allTracks = [
-    {'title': 'Melodi Cinta', 'subtitle': 'Artis A', 'icon': Icons.music_note, 'color': Color(0xFF8B5CF6)},
-    {'title': 'Senja Hari', 'subtitle': 'Band Indie', 'icon': Icons.library_music, 'color': Color(0xFFD946EF)},
-    {'title': 'Pagi Cerah', 'subtitle': 'Penyanyi C', 'icon': Icons.album, 'color': Color(0xFF3B82F6)},
-    {'title': 'Kisah Sukses', 'subtitle': 'Podcast Motivasi', 'icon': Icons.mic, 'color': Color(0xFF3B82F6)},
-    {'title': 'Obrolan Malam', 'subtitle': 'Podcast Horor', 'icon': Icons.mic_external_on, 'color': Color(0xFF10B981)},
-    {'title': 'Dunia Tech', 'subtitle': 'Podcast IT', 'icon': Icons.headset_mic, 'color': Color(0xFFF59E0B)},
-    {'title': 'Pagi Ceria', 'subtitle': 'Radio FM Nasional', 'icon': Icons.radio, 'color': Color(0xFFF59E0B)},
-    {'title': 'Sore Santai', 'subtitle': 'Hits Radio Lokal', 'icon': Icons.radio, 'color': Color(0xFFEF4444)},
+    {
+      'title': 'GHOST',
+      'subtitle': 'Artis Justin Bieber',
+      'icon': Icons.music_note,
+      'color': Color(0xFF8B5CF6),
+      'url': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
+    },
+    {
+      'title': 'SORRY',
+      'subtitle': 'Artis Justin Bieber',
+      'icon': Icons.library_music,
+      'color': Color(0xFFD946EF),
+      'url': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'
+    },
+    {
+      'title': 'I DONT CARE',
+      'subtitle': 'Artis Justin Bieber',
+      'icon': Icons.album,
+      'color': Color(0xFF3B82F6),
+      'url': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'
+    },
+    {
+      'title': 'Kisah Sukses',
+      'subtitle': 'Podcast Motivasi',
+      'icon': Icons.mic,
+      'color': Color(0xFF3B82F6),
+      'url': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3'
+    },
+    {
+      'title': 'Obrolan Malam',
+      'subtitle': 'Podcast Horor',
+      'icon': Icons.mic_external_on,
+      'color': Color(0xFF10B981),
+      'url': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3'
+    },
+    {
+      'title': 'Dunia Tech',
+      'subtitle': 'Podcast IT',
+      'icon': Icons.headset_mic,
+      'color': Color(0xFFF59E0B),
+      'url': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3'
+    },
+    {
+      'title': 'Pagi Ceria',
+      'subtitle': 'Radio FM Nasional',
+      'icon': Icons.radio,
+      'color': Color(0xFFF59E0B),
+      'url': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3'
+    },
+    {
+      'title': 'Sore Santai',
+      'subtitle': 'Hits Radio Lokal',
+      'icon': Icons.radio,
+      'color': Color(0xFFEF4444),
+      'url': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3'
+    },
   ];
 
   void _toggleFavorite(String title) {
@@ -527,12 +383,24 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
       backgroundColor: const Color(0xFF0F172A),
       body: SafeArea(
         // IndexedStack digunakan agar halaman bisa berganti sesuai _currentIndex
-        child: IndexedStack(
-          index: _currentIndex,
+        child: Stack(
           children: [
-            _buildHomeContent(), // Index 0
-            _buildSearchContent(), // Index 1
-            _buildCollectionContent(), // Index 2
+            IndexedStack(
+              index: _currentIndex,
+              children: [
+                _buildHomeContent(), // Index 0
+                _buildSearchContent(), // Index 1
+                _buildCollectionContent(), // Index 2
+              ],
+            ),
+            // Mini Player di atas navigasi bawah
+            if (_currentPlayingTitle != null)
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: _buildMiniPlayer(),
+              ),
           ],
         ),
       ),
@@ -580,9 +448,13 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
               GestureDetector(
                 onTap: () => _showUserProfile(context),
                 child: CircleAvatar(
+                  key: ValueKey('home_profile_${_profileImageBytes.hashCode}'),
                   radius: 22,
-                  backgroundColor: const Color(0xFFD946EF).withOpacity(0.2),
-                  child: const Icon(Icons.person, color: Color(0xFFD946EF), size: 24),
+                  backgroundColor: const Color(0xFFD946EF).withValues(alpha: 0.2),
+                  foregroundImage: _profileImageBytes != null ? MemoryImage(_profileImageBytes!) : null,
+                  child: _profileImageBytes == null
+                      ? const Icon(Icons.person, color: Color(0xFFD946EF), size: 24)
+                      : null,
                 ),
               ),
             ],
@@ -643,31 +515,60 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
   void _showUserProfile(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        return Container(
-          decoration: const BoxDecoration(
-            color: Color(0xFF1E293B),
-            borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-          ),
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 50,
-                height: 5,
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(10),
-                ),
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Container(
+              decoration: const BoxDecoration(
+                color: Color(0xFF1E293B),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
               ),
-              const SizedBox(height: 20),
-              const CircleAvatar(
-                radius: 40,
-                backgroundColor: Color(0xFFD946EF),
-                child: Icon(Icons.person, size: 40, color: Colors.white),
-              ),
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 50,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: Colors.white24,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Stack(
+                    children: [
+                      CircleAvatar(
+                        key: ValueKey('modal_profile_${_profileImageBytes.hashCode}'),
+                        radius: 40,
+                        backgroundColor: const Color(0xFFD946EF),
+                        foregroundImage: _profileImageBytes != null ? MemoryImage(_profileImageBytes!) : null,
+                        child: _profileImageBytes == null
+                            ? const Icon(Icons.person, size: 40, color: Colors.white)
+                            : null,
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: GestureDetector(
+                          onTap: () async {
+                            await _pickImage();
+                            setModalState(() {}); // Rebuild modal UI
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFD946EF),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.camera_alt, size: 20, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
               const SizedBox(height: 16),
               const Text(
                 'Halo Divaa!',
@@ -690,7 +591,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
               ListTile(
                 leading: Container(
                   padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(color: Colors.redAccent.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                  decoration: BoxDecoration(color: Colors.redAccent.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
                   child: const Icon(Icons.logout, color: Colors.redAccent),
                 ),
                 title: const Text('Keluar', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.redAccent)),
@@ -700,6 +601,8 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
               const SizedBox(height: 20),
             ],
           ),
+            );
+          },
         );
       },
     );
@@ -840,9 +743,9 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
         key: const ValueKey('untukmu_list'),
         padding: const EdgeInsets.all(20),
         children: [
-          _buildTrackItem('Melodi Cinta', 'Artis A', Icons.music_note, const Color(0xFF8B5CF6)),
-          _buildTrackItem('Senja Hari', 'Band Indie', Icons.library_music, const Color(0xFFD946EF)),
-          _buildTrackItem('Pagi Cerah', 'Penyanyi C', Icons.album, const Color(0xFF3B82F6)),
+          _buildTrackItem('GHOST', 'Artis Justin Bieber', Icons.music_note, const Color(0xFF8B5CF6)),
+          _buildTrackItem('SORRY', 'Artis Justin Bieber', Icons.library_music, const Color(0xFFD946EF)),
+          _buildTrackItem('I DONT CARE', 'Artis Justin Bieber', Icons.album, const Color(0xFF3B82F6)),
         ],
       );
     }
@@ -972,7 +875,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
                         Icon(
                           Icons.favorite_border,
                           size: 64,
-                          color: const Color(0xFFD946EF).withOpacity(0.5),
+                          color: const Color(0xFFD946EF).withValues(alpha: 0.5),
                         ),
                         const SizedBox(height: 16),
                         const Text(
@@ -998,7 +901,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
                           )),
                       const SizedBox(height: 16),
                       ListTile(
-                        contentPadding: EdgeInsets.zero,
+                        onTap: _showCreatePlaylistDialog,
                         leading: Container(
                           width: 50,
                           height: 50,
@@ -1013,11 +916,182 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
+                      ListTile(
+                        onTap: _showSpotifyImportDialog,
+                        leading: Container(
+                          width: 50,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1DB954).withValues(alpha: 0.2), // Spotify Green
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(Icons.import_export, color: Color(0xFF1DB954)),
+                        ),
+                        title: const Text(
+                          'Impor Album Spotify',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Playlist Kamu',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 12),
+                      ..._userPlaylists.map((playlist) => _buildPlaylistTile(playlist)),
                     ],
                   ),
           ),
         ],
       ),
+    );
+  }
+
+  // --- Widget Playlist Tile ---
+  Widget _buildPlaylistTile(Playlist playlist) {
+    return ListTile(
+      onTap: () => _showPlaylistDetail(playlist),
+      contentPadding: EdgeInsets.zero,
+      leading: Container(
+        width: 50,
+        height: 50,
+        decoration: BoxDecoration(
+          color: playlist.color.withValues(alpha: 0.2),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(playlist.icon, color: playlist.color),
+      ),
+      title: Text(playlist.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+      subtitle: Text('${playlist.trackTitles.length} lagu', style: const TextStyle(color: Colors.white54)),
+      trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.white54),
+    );
+  }
+
+  // --- Dialog Buat Playlist Baru ---
+  void _showCreatePlaylistDialog() {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1E293B),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Buat Playlist Baru'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          style: const TextStyle(color: Colors.white),
+          decoration: const InputDecoration(
+            hintText: 'Nama playlist',
+            hintStyle: TextStyle(color: Colors.white24),
+            enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
+            focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFFD946EF))),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal', style: TextStyle(color: Colors.white54)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFD946EF),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            onPressed: () {
+              if (controller.text.isNotEmpty) {
+                setState(() {
+                  _userPlaylists.add(Playlist(name: controller.text));
+                });
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Simpan', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- Detail Playlist Modal ---
+  void _showPlaylistDetail(Playlist playlist) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final playlistTracks = _allTracks.where((t) => playlist.trackTitles.contains(t['title'])).toList();
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.8,
+              decoration: const BoxDecoration(
+                color: Color(0xFF0F172A),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+              ),
+              child: Column(
+                children: [
+                  const SizedBox(height: 12),
+                  Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(10))),
+                  Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(colors: [playlist.color, playlist.color.withValues(alpha: 0.6)]),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Icon(playlist.icon, color: Colors.white, size: 40),
+                        ),
+                        const SizedBox(width: 20),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(playlist.name, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                              const SizedBox(height: 4),
+                              Text('${playlist.trackTitles.length} lagu • Oleh Divaa', style: const TextStyle(color: Colors.white54)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Divider(color: Colors.white10, height: 1),
+                  Expanded(
+                    child: playlistTracks.isEmpty
+                        ? Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.music_off, size: 64, color: Colors.white10),
+                                const SizedBox(height: 16),
+                                const Text('Playlist ini masih kosong', style: TextStyle(color: Colors.white38)),
+                              ],
+                            ),
+                          )
+                        : ListView.builder(
+                            padding: const EdgeInsets.all(20),
+                            itemCount: playlistTracks.length,
+                            itemBuilder: (context, index) {
+                              final track = playlistTracks[index];
+                              return _buildTrackItem(
+                                track['title'],
+                                track['subtitle'],
+                                track['icon'],
+                                track['color'],
+                              );
+                            },
+                          ),
+                  ),
+                ],
+              ),
+            );
+          }
+        );
+      },
     );
   }
 
@@ -1043,7 +1117,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: const Color(0xFFD946EF).withOpacity(0.4),
+                    color: const Color(0xFFD946EF).withValues(alpha: 0.4),
                     blurRadius: 8,
                     offset: const Offset(0, 4),
                   )
@@ -1068,13 +1142,15 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
     Color color,
   ) {
     final isFav = _favorites.contains(title);
+    final track = _allTracks.firstWhere((t) => t['title'] == title);
     return ListTile(
+      onTap: () => _playTrack(title, track['url'] as String),
       contentPadding: EdgeInsets.zero,
       leading: Container(
         width: 50,
         height: 50,
         decoration: BoxDecoration(
-          color: color.withOpacity(0.2),
+          color: color.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(icon, color: color),
@@ -1099,8 +1175,75 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
             ),
           ),
           const SizedBox(width: 8),
-          const Icon(Icons.more_vert, color: Colors.white54),
+          IconButton(
+            icon: const Icon(Icons.more_vert, color: Colors.white54),
+            onPressed: () => _showTrackOptions(title),
+          ),
         ],
+      ),
+    );
+  }
+
+  void _showTrackOptions(String title) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1E293B),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 12),
+          Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(10))),
+          ListTile(
+            leading: const Icon(Icons.add_circle_outline, color: Color(0xFFD946EF)),
+            title: const Text('Tambah ke Playlist'),
+            onTap: () {
+              Navigator.pop(context);
+              _showAddToPlaylistDialog(title);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.share, color: Colors.white70),
+            title: const Text('Bagikan'),
+            onTap: () => Navigator.pop(context),
+          ),
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
+  void _showAddToPlaylistDialog(String trackTitle) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1E293B),
+        title: const Text('Pilih Playlist'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: _userPlaylists.length,
+            itemBuilder: (context, index) {
+              final playlist = _userPlaylists[index];
+              return ListTile(
+                leading: Icon(playlist.icon, color: playlist.color),
+                title: Text(playlist.name),
+                onTap: () {
+                  setState(() {
+                    if (!playlist.trackTitles.contains(trackTitle)) {
+                      playlist.trackTitles.add(trackTitle);
+                    }
+                  });
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Berhasil ditambahkan ke ${playlist.name}')),
+                  );
+                },
+              );
+            },
+          ),
+        ),
       ),
     );
   }
@@ -1108,9 +1251,9 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
   Widget _buildGenreCard(String title, Color color) {
     return Container(
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.5)),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Center(
         child: Text(
@@ -1123,5 +1266,190 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
         ),
       ),
     );
+  }
+
+  // ==========================================
+  // Player Logic & UI
+  // ==========================================
+  void _playTrack(String title, String url) async {
+    if (_currentPlayingTitle == title) {
+      if (_isPlaying) {
+        await _audioPlayer.pause();
+      } else {
+        await _audioPlayer.resume();
+      }
+    } else {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(UrlSource(url));
+      setState(() {
+        _currentPlayingTitle = title;
+      });
+    }
+  }
+
+  Widget _buildMiniPlayer() {
+    final currentTrack = _allTracks.firstWhere((t) => t['title'] == _currentPlayingTitle);
+    return Container(
+      margin: const EdgeInsets.all(10),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E293B),
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.3),
+            blurRadius: 10,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  width: 45,
+                  height: 45,
+                  color: (currentTrack['color'] as Color).withValues(alpha: 0.2),
+                  child: Icon(currentTrack['icon'] as IconData, color: currentTrack['color'] as Color),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _currentPlayingTitle!,
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      currentTrack['subtitle'] as String,
+                      style: const TextStyle(color: Colors.white54, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                icon: Icon(_isPlaying ? Icons.pause_circle_filled : Icons.play_circle_filled),
+                iconSize: 40,
+                color: const Color(0xFFD946EF),
+                onPressed: () {
+                  if (_isPlaying) {
+                    _audioPlayer.pause();
+                  } else {
+                    _audioPlayer.resume();
+                  }
+                },
+              ),
+            ],
+          ),
+          // Progress Bar
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              trackHeight: 2,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 4),
+              overlayShape: const RoundSliderOverlayShape(overlayRadius: 10),
+              activeTrackColor: const Color(0xFFD946EF),
+              inactiveTrackColor: Colors.white10,
+              thumbColor: const Color(0xFFD946EF),
+            ),
+            child: Slider(
+              value: _position.inSeconds.toDouble(),
+              max: _duration.inSeconds.toDouble() > 0 ? _duration.inSeconds.toDouble() : 1.0,
+              onChanged: (value) {
+                _audioPlayer.seek(Duration(seconds: value.toInt()));
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- Simulasi Impor Spotify ---
+  void _showSpotifyImportDialog() {
+    final controller = TextEditingController(text: 'https://api.spotify.com/v1/albums/4aawyAB9vmq7uU72jRu96y');
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1E293B),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            const Icon(Icons.library_music, color: Color(0xFF1DB954)),
+            const SizedBox(width: 10),
+            const Text('Spotify Album URL'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Masukkan endpoint Spotify API untuk mengimpor daftar lagu.',
+              style: TextStyle(fontSize: 13, color: Colors.white54),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: controller,
+              style: const TextStyle(color: Colors.white, fontSize: 13),
+              decoration: const InputDecoration(
+                labelText: 'API Link',
+                labelStyle: TextStyle(color: Color(0xFF1DB954)),
+                enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
+                focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF1DB954))),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal', style: TextStyle(color: Colors.white54)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF1DB954),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+              _simulateSpotifyFetch(controller.text);
+            },
+            child: const Text('Impor', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _simulateSpotifyFetch(String url) {
+    // Simulasi loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator(color: Color(0xFF1DB954))),
+    );
+
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        Navigator.pop(context); // Close loading
+        setState(() {
+          _userPlaylists.add(Playlist(
+            name: 'Spotify Album: Justice',
+            trackTitles: ['GHOST', 'SORRY', 'I DONT CARE'],
+            color: const Color(0xFF1DB954),
+            icon: Icons.album,
+          ));
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Album berhasil diimpor dari Spotify!')),
+        );
+      }
+    });
   }
 }
