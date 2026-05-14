@@ -4,6 +4,8 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
+import 'models/music_track.dart';
+import 'services/music_api_service.dart';
 
 void main() {
   runApp(const MelodyaApp());
@@ -221,7 +223,7 @@ class MobileAppLayout extends StatefulWidget {
 
 class _MobileAppLayoutState extends State<MobileAppLayout> {
   int _currentIndex = 0;
-  String _selectedCategory = 'Untukmu';
+  String _selectedCategory = 'Semua';
 
   // State untuk menyimpan lagu favorit (berdasarkan judul lagu)
   final Set<String> _favorites = {};
@@ -238,6 +240,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
   // Audio Player State
   final AudioPlayer _audioPlayer = AudioPlayer();
   String? _currentPlayingTitle;
+  MusicTrack? _currentApiTrack; // Simpan data lagu dari API yang sedang diputar
   bool _isPlaying = false;
   Duration _duration = Duration.zero;
   Duration _position = Duration.zero;
@@ -245,6 +248,28 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
   // Profile State
   Uint8List? _profileImageBytes;
   final ImagePicker _picker = ImagePicker();
+
+  // API State
+  final MusicApiService _apiService = MusicApiService();
+  List<MusicTrack> _apiTracks = [];
+  bool _isLoading = false;
+
+  Future<void> _fetchMusicData(String query) async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final tracks = await _apiService.fetchTracks(query);
+      setState(() {
+        _apiTracks = tracks;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   Future<void> _pickImage() async {
     try {
@@ -275,6 +300,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
   @override
   void initState() {
     super.initState();
+    _fetchMusicData('Justin Bieber'); // Data awal
     // Listen to player state changes
     _audioPlayer.onPlayerStateChanged.listen((state) {
       if (mounted) {
@@ -468,9 +494,9 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                _buildCategoryChip('Untukmu', _selectedCategory == 'Untukmu'),
-                _buildCategoryChip('Podcast', _selectedCategory == 'Podcast'),
-                _buildCategoryChip('Radio', _selectedCategory == 'Radio'),
+                _buildCategoryChip('Semua', _selectedCategory == 'Semua'),
+                _buildCategoryChip('Musik, Mengikuti', _selectedCategory == 'Musik, Mengikuti'),
+                _buildCategoryChip('Podcast, mengikuti', _selectedCategory == 'Podcast, mengikuti'),
               ],
             ),
           ),
@@ -612,7 +638,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
   // Komponen Berubah Sesuai Kategori
   // ==========================================
   Widget _buildFeaturedCard() {
-    if (_selectedCategory == 'Podcast') {
+    if (_selectedCategory == 'Podcast, mengikuti') {
       return Container(
         key: const ValueKey('podcast'),
         height: 180,
@@ -646,9 +672,9 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
           ],
         ),
       );
-    } else if (_selectedCategory == 'Radio') {
+    } else if (_selectedCategory == 'Musik, Mengikuti') {
       return Container(
-        key: const ValueKey('radio'),
+        key: const ValueKey('musik'),
         height: 180,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
@@ -664,10 +690,10 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             const Text(
-              'Radio 99.9 FM',
+              'Musik Favorit',
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
             ),
-            const Text('Siaran langsung musik hits', style: TextStyle(color: Colors.white)),
+            const Text('Artis yang Anda ikuti', style: TextStyle(color: Colors.white)),
             const Spacer(),
             Align(
               alignment: Alignment.bottomRight,
@@ -681,9 +707,9 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
         ),
       );
     } else {
-      // Untukmu
+      // Semua
       return Container(
-        key: const ValueKey('untukmu'),
+        key: const ValueKey('semua'),
         height: 180,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
@@ -719,36 +745,81 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
   }
 
   Widget _buildListItems() {
-    if (_selectedCategory == 'Podcast') {
-      return ListView(
-        key: const ValueKey('podcast_list'),
-        padding: const EdgeInsets.all(20),
-        children: [
-          _buildTrackItem('Kisah Sukses', 'Podcast Motivasi', Icons.mic, const Color(0xFF3B82F6)),
-          _buildTrackItem('Obrolan Malam', 'Podcast Horor', Icons.mic_external_on, const Color(0xFF10B981)),
-          _buildTrackItem('Dunia Tech', 'Podcast IT', Icons.headset_mic, const Color(0xFFF59E0B)),
-        ],
-      );
-    } else if (_selectedCategory == 'Radio') {
-      return ListView(
-        key: const ValueKey('radio_list'),
-        padding: const EdgeInsets.all(20),
-        children: [
-          _buildTrackItem('Pagi Ceria', 'Radio FM Nasional', Icons.radio, const Color(0xFFF59E0B)),
-          _buildTrackItem('Sore Santai', 'Hits Radio Lokal', Icons.radio, const Color(0xFFEF4444)),
-        ],
-      );
-    } else {
-      return ListView(
-        key: const ValueKey('untukmu_list'),
-        padding: const EdgeInsets.all(20),
-        children: [
-          _buildTrackItem('GHOST', 'Artis Justin Bieber', Icons.music_note, const Color(0xFF8B5CF6)),
-          _buildTrackItem('SORRY', 'Artis Justin Bieber', Icons.library_music, const Color(0xFFD946EF)),
-          _buildTrackItem('I DONT CARE', 'Artis Justin Bieber', Icons.album, const Color(0xFF3B82F6)),
-        ],
+    if (_isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(color: Color(0xFFD946EF)),
       );
     }
+
+    if (_apiTracks.isEmpty) {
+      return const Center(
+        child: Text('Tidak ada lagu ditemukan', style: TextStyle(color: Colors.white54)),
+      );
+    }
+
+    return ListView.builder(
+      key: ValueKey('api_list_$_selectedCategory'),
+      padding: const EdgeInsets.all(20),
+      itemCount: _apiTracks.length,
+      itemBuilder: (context, index) {
+        final track = _apiTracks[index];
+        return _buildTrackItemFromApi(track);
+      },
+    );
+  }
+
+  Widget _buildTrackItemFromApi(MusicTrack track) {
+    bool isCurrent = _currentPlayingTitle == track.title;
+
+    return ListTile(
+      onTap: () async {
+        if (isCurrent && _isPlaying) {
+          await _audioPlayer.pause();
+        } else {
+          setState(() {
+            _currentPlayingTitle = track.title;
+            _currentApiTrack = track;
+          });
+          await _audioPlayer.play(UrlSource(track.previewUrl));
+        }
+      },
+      contentPadding: const EdgeInsets.symmetric(vertical: 8),
+      leading: Container(
+        width: 50,
+        height: 50,
+        decoration: BoxDecoration(
+          color: track.color.withValues(alpha: 0.2),
+          borderRadius: BorderRadius.circular(10),
+          image: track.artworkUrl.isNotEmpty
+              ? DecorationImage(image: NetworkImage(track.artworkUrl), fit: BoxFit.cover)
+              : null,
+        ),
+        child: track.artworkUrl.isEmpty
+            ? Icon(track.icon, color: track.color)
+            : null,
+      ),
+      title: Text(
+        track.title,
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: isCurrent ? const Color(0xFFD946EF) : Colors.white,
+        ),
+      ),
+      subtitle: Text(track.artist, style: const TextStyle(color: Colors.white54)),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: Icon(
+              _favorites.contains(track.title) ? Icons.favorite : Icons.favorite_border,
+              color: _favorites.contains(track.title) ? const Color(0xFFD946EF) : Colors.white54,
+            ),
+            onPressed: () => _toggleFavorite(track.title),
+          ),
+          const Icon(Icons.more_vert, color: Colors.white54),
+        ],
+      ),
+    );
   }
 
   // Daftar lagu favorit untuk halaman Koleksi
@@ -772,6 +843,11 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
           const SizedBox(height: 20),
           // Kolom Pencarian
           TextField(
+            onSubmitted: (value) {
+              if (value.isNotEmpty) {
+                _fetchMusicData(value);
+              }
+            },
             decoration: InputDecoration(
               hintText: 'Artis, lagu, atau podcast',
               prefixIcon: const Icon(Icons.search, color: Colors.white54),
@@ -1102,6 +1178,12 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
         setState(() {
           _selectedCategory = label;
         });
+        // Fetch data based on category
+        String query = label;
+        if (label == 'Semua') query = 'Top Hits';
+        if (label == 'Musik, Mengikuti') query = 'Justin Bieber';
+        if (label == 'Podcast, mengikuti') query = 'Podcast';
+        _fetchMusicData(query);
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
@@ -1283,12 +1365,28 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
       await _audioPlayer.play(UrlSource(url));
       setState(() {
         _currentPlayingTitle = title;
+        _currentApiTrack = null;
       });
     }
   }
 
   Widget _buildMiniPlayer() {
-    final currentTrack = _allTracks.firstWhere((t) => t['title'] == _currentPlayingTitle);
+    // Cari track di data statis jika tidak ada di data API yang sedang diputar
+    Map<String, dynamic>? staticTrack;
+    if (_currentApiTrack == null) {
+      try {
+        staticTrack = _allTracks.firstWhere((t) => t['title'] == _currentPlayingTitle);
+      } catch (e) {
+        staticTrack = null;
+      }
+    }
+
+    final String title = _currentApiTrack?.title ?? staticTrack?['title'] ?? 'Unknown';
+    final String subtitle = _currentApiTrack?.artist ?? staticTrack?['subtitle'] ?? 'Unknown';
+    final Color color = _currentApiTrack?.color ?? staticTrack?['color'] ?? const Color(0xFFD946EF);
+    final IconData icon = _currentApiTrack?.icon ?? staticTrack?['icon'] ?? Icons.music_note;
+    final String? artworkUrl = _currentApiTrack?.artworkUrl;
+
     return Container(
       margin: const EdgeInsets.all(10),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -1313,8 +1411,15 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
                 child: Container(
                   width: 45,
                   height: 45,
-                  color: (currentTrack['color'] as Color).withValues(alpha: 0.2),
-                  child: Icon(currentTrack['icon'] as IconData, color: currentTrack['color'] as Color),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.2),
+                    image: artworkUrl != null && artworkUrl.isNotEmpty
+                        ? DecorationImage(image: NetworkImage(artworkUrl), fit: BoxFit.cover)
+                        : null,
+                  ),
+                  child: artworkUrl == null || artworkUrl.isEmpty
+                      ? Icon(icon, color: color)
+                      : null,
                 ),
               ),
               const SizedBox(width: 12),
@@ -1323,12 +1428,12 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      _currentPlayingTitle!,
+                      title,
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
-                      currentTrack['subtitle'] as String,
+                      subtitle,
                       style: const TextStyle(color: Colors.white54, fontSize: 12),
                     ),
                   ],
