@@ -8,7 +8,7 @@ class MusicApiService {
   Future<List<MusicTrack>> fetchTracks(String searchTerm) async {
     try {
       final response = await http.get(
-        Uri.parse('$_baseUrl?term=$searchTerm&entity=song&limit=20'),
+        Uri.parse('$_baseUrl?term=$searchTerm&entity=song&limit=30'),
       );
 
       if (response.statusCode == 200) {
@@ -16,11 +16,10 @@ class MusicApiService {
         final List<dynamic> results = data['results'];
         return results.map((json) => MusicTrack.fromJson(json)).toList();
       } else {
-        throw Exception('Gagal memuat lagu');
+        throw Exception('Gagal memuat lagu dari iTunes');
       }
     } catch (e) {
-      print('Error fetching music: $e');
-      return [];
+      throw Exception('Koneksi bermasalah: $e');
     }
   }
 }

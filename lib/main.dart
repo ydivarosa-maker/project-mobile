@@ -254,6 +254,8 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
   final MusicApiService _apiService = MusicApiService();
   List<MusicTrack> _apiTracks = [];
   List<MusicTrack> _favApiTracks = []; // Simpan objek lagu favorit dari API
+  Set<String> _followedTitles = {}; // Judul lagu yang diikuti
+  List<MusicTrack> _followedApiTracks = []; // Objek lagu yang diikuti
   bool _isLoading = false;
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounce;
@@ -272,6 +274,11 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
       setState(() {
         _isLoading = false;
       });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal mengambil data: $e')),
+        );
+      }
     }
   }
 
@@ -304,7 +311,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
   @override
   void initState() {
     super.initState();
-    _fetchMusicData('Justin Bieber'); // Data awal
+    _fetchMusicData('Justin Bieber'); // Kembali ke iTunes untuk akses lagu populer
     // Listen to player state changes
     _audioPlayer.onPlayerStateChanged.listen((state) {
       if (mounted) {
@@ -410,6 +417,22 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
         _favorites.add(title);
         if (apiTrack != null) {
           _favApiTracks.add(apiTrack);
+        }
+      }
+    });
+  }
+
+  void _toggleFollow(String title, {MusicTrack? apiTrack}) {
+    setState(() {
+      if (_followedTitles.contains(title)) {
+        _followedTitles.remove(title);
+        if (apiTrack != null) {
+          _followedApiTracks.removeWhere((t) => t.title == title);
+        }
+      } else {
+        _followedTitles.add(title);
+        if (apiTrack != null) {
+          _followedApiTracks.add(apiTrack);
         }
       }
     });
@@ -763,18 +786,35 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
       );
     }
 
-    if (_apiTracks.isEmpty) {
-      return const Center(
-        child: Text('Tidak ada lagu ditemukan', style: TextStyle(color: Colors.white54)),
+    List<MusicTrack> displayTracks = _apiTracks;
+    if (_selectedCategory == 'Musik, Mengikuti') {
+      displayTracks = _followedApiTracks;
+    }
+
+    if (displayTracks.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.music_note_outlined, color: Colors.white24, size: 64),
+            const SizedBox(height: 16),
+            Text(
+              _selectedCategory == 'Musik, Mengikuti' 
+                  ? 'Belum ada lagu yang diikuti' 
+                  : 'Tidak ada lagu ditemukan', 
+              style: const TextStyle(color: Colors.white54)
+            ),
+          ],
+        ),
       );
     }
 
     return ListView.builder(
       key: ValueKey('api_list_$_selectedCategory'),
       padding: const EdgeInsets.all(20),
-      itemCount: _apiTracks.length,
+      itemCount: displayTracks.length,
       itemBuilder: (context, index) {
-        final track = _apiTracks[index];
+        final track = displayTracks[index];
         return _buildTrackItemFromApi(track);
       },
     );
@@ -785,6 +825,15 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
 
     return ListTile(
       onTap: () async {
+        if (track.previewUrl.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Maaf, Spotify tidak menyediakan pratinjau audio untuk lagu ini.'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+          return;
+        }
         if (isCurrent && _isPlaying) {
           await _audioPlayer.pause();
         } else {
@@ -823,12 +872,18 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
         children: [
           IconButton(
             icon: Icon(
+              _followedTitles.contains(track.title) ? Icons.check_circle : Icons.add_circle_outline,
+              color: _followedTitles.contains(track.title) ? const Color(0xFF10B981) : Colors.white54,
+            ),
+            onPressed: () => _toggleFollow(track.title, apiTrack: track),
+          ),
+          IconButton(
+            icon: Icon(
               _favorites.contains(track.title) ? Icons.favorite : Icons.favorite_border,
               color: _favorites.contains(track.title) ? const Color(0xFFD946EF) : Colors.white54,
             ),
             onPressed: () => _toggleFavorite(track.title, apiTrack: track),
           ),
-          const Icon(Icons.more_vert, color: Colors.white54),
         ],
       ),
     );
@@ -856,7 +911,13 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
           // Kolom Pencarian
           TextField(
             controller: _searchController,
+            onSubmitted: (value) {
+              if (value.isNotEmpty) {
+                _fetchMusicData(value);
+              }
+            },
             onChanged: (value) {
+              setState(() {}); // Rebuild to update suffix icon and show results area
               if (_debounce?.isActive ?? false) _debounce!.cancel();
               _debounce = Timer(const Duration(milliseconds: 500), () {
                 if (value.isNotEmpty) {

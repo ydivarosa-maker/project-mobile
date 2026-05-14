@@ -23,7 +23,7 @@ class MusicTrack {
       artist: json['artistName'] ?? 'Unknown Artist',
       artworkUrl: json['artworkUrl100'] ?? '',
       previewUrl: json['previewUrl'] ?? '',
-      color: Colors.primaries[json['trackId'] % Colors.primaries.length],
+      color: Colors.primaries[(json['trackId']?.hashCode ?? 0).abs() % Colors.primaries.length],
     );
   }
 }
