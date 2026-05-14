@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:image_picker/image_picker.dart';
@@ -252,7 +253,10 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
   // API State
   final MusicApiService _apiService = MusicApiService();
   List<MusicTrack> _apiTracks = [];
+  List<MusicTrack> _favApiTracks = []; // Simpan objek lagu favorit dari API
   bool _isLoading = false;
+  final TextEditingController _searchController = TextEditingController();
+  Timer? _debounce;
 
   Future<void> _fetchMusicData(String query) async {
     setState(() {
@@ -330,6 +334,8 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
   @override
   void dispose() {
     _audioPlayer.dispose();
+    _searchController.dispose();
+    _debounce?.cancel();
     super.dispose();
   }
 
@@ -393,12 +399,18 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
     },
   ];
 
-  void _toggleFavorite(String title) {
+  void _toggleFavorite(String title, {MusicTrack? apiTrack}) {
     setState(() {
       if (_favorites.contains(title)) {
         _favorites.remove(title);
+        if (apiTrack != null) {
+          _favApiTracks.removeWhere((t) => t.title == title);
+        }
       } else {
         _favorites.add(title);
+        if (apiTrack != null) {
+          _favApiTracks.add(apiTrack);
+        }
       }
     });
   }
@@ -814,7 +826,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
               _favorites.contains(track.title) ? Icons.favorite : Icons.favorite_border,
               color: _favorites.contains(track.title) ? const Color(0xFFD946EF) : Colors.white54,
             ),
-            onPressed: () => _toggleFavorite(track.title),
+            onPressed: () => _toggleFavorite(track.title, apiTrack: track),
           ),
           const Icon(Icons.more_vert, color: Colors.white54),
         ],
@@ -843,14 +855,33 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
           const SizedBox(height: 20),
           // Kolom Pencarian
           TextField(
-            onSubmitted: (value) {
-              if (value.isNotEmpty) {
-                _fetchMusicData(value);
-              }
+            controller: _searchController,
+            onChanged: (value) {
+              if (_debounce?.isActive ?? false) _debounce!.cancel();
+              _debounce = Timer(const Duration(milliseconds: 500), () {
+                if (value.isNotEmpty) {
+                  _fetchMusicData(value);
+                } else {
+                  setState(() {
+                    _apiTracks = [];
+                  });
+                }
+              });
             },
             decoration: InputDecoration(
               hintText: 'Artis, lagu, atau podcast',
               prefixIcon: const Icon(Icons.search, color: Colors.white54),
+              suffixIcon: _searchController.text.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear, color: Colors.white54),
+                      onPressed: () {
+                        _searchController.clear();
+                        setState(() {
+                          _apiTracks = [];
+                        });
+                      },
+                    )
+                  : null,
               filled: true,
               fillColor: Colors.white10,
               border: OutlineInputBorder(
@@ -860,25 +891,45 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
             ),
           ),
           const SizedBox(height: 30),
-          const Text(
-            'Jelajahi Genre',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 20),
-          // Kotak-kotak Genre
+
+          // Tampilkan Hasil atau Genre
           Expanded(
-            child: GridView.count(
-              crossAxisCount: 2,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              childAspectRatio: 1.5,
-              children: [
-                _buildGenreCard('Pop', const Color(0xFFD946EF)),
-                _buildGenreCard('Rock', const Color(0xFF8B5CF6)),
-                _buildGenreCard('Hip Hop', const Color(0xFF3B82F6)),
-                _buildGenreCard('Jazz', const Color(0xFF10B981)),
-              ],
-            ),
+            child: _searchController.text.isEmpty
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Jelajahi Genre',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 20),
+                      Expanded(
+                        child: GridView.count(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          childAspectRatio: 1.5,
+                          children: [
+                            _buildGenreCard('Pop', const Color(0xFFD946EF)),
+                            _buildGenreCard('Rock', const Color(0xFF8B5CF6)),
+                            _buildGenreCard('Hip Hop', const Color(0xFF3B82F6)),
+                            _buildGenreCard('Jazz', const Color(0xFF10B981)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  )
+                : _isLoading
+                    ? const Center(child: CircularProgressIndicator(color: Color(0xFFD946EF)))
+                    : _apiTracks.isEmpty
+                        ? const Center(child: Text('Tidak ada hasil ditemukan', style: TextStyle(color: Colors.white54)))
+                        : ListView.builder(
+                            itemCount: _apiTracks.length,
+                            itemBuilder: (context, index) {
+                              final track = _apiTracks[index];
+                              return _buildTrackItemFromApi(track);
+                            },
+                          ),
           ),
         ],
       ),
@@ -930,7 +981,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),
                     ),
                     Text(
-                      '${favTracks.length} lagu',
+                      '${_favorites.length} lagu',
                       style: const TextStyle(color: Colors.white70, fontSize: 13),
                     ),
                   ],
@@ -943,7 +994,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
 
           // --- Daftar lagu favorit ---
           Expanded(
-            child: favTracks.isEmpty
+            child: _favorites.isEmpty
                 ? Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -969,12 +1020,17 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
                   )
                 : ListView(
                     children: [
-                      ...favTracks.map((track) => _buildTrackItem(
-                            track['title'] as String,
-                            track['subtitle'] as String,
-                            track['icon'] as IconData,
-                            track['color'] as Color,
-                          )),
+                      // Render Favorit Statis
+                      ..._allTracks
+                          .where((t) => _favorites.contains(t['title']) && !_favApiTracks.any((at) => at.title == t['title']))
+                          .map((track) => _buildTrackItem(
+                                track['title'] as String,
+                                track['subtitle'] as String,
+                                track['icon'] as IconData,
+                                track['color'] as Color,
+                              )),
+                      // Render Favorit API
+                      ..._favApiTracks.map((track) => _buildTrackItemFromApi(track)),
                       const SizedBox(height: 16),
                       ListTile(
                         onTap: _showCreatePlaylistDialog,
@@ -1331,19 +1387,25 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
   }
 
   Widget _buildGenreCard(String title, Color color) {
-    return Container(
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.5)),
-      ),
-      child: Center(
-        child: Text(
-          title,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: color,
+    return GestureDetector(
+      onTap: () {
+        _searchController.text = title;
+        _fetchMusicData(title);
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.2),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withValues(alpha: 0.5)),
+        ),
+        child: Center(
+          child: Text(
+            title,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
           ),
         ),
       ),
