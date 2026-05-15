@@ -32,7 +32,7 @@ class MelodyaApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Melodya Landing Page',
+      title: 'Melodya',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.dark,
@@ -44,15 +44,31 @@ class MelodyaApp extends StatelessWidget {
   }
 }
 
-
-
-class ResponsiveLandingPage extends StatelessWidget {
+class ResponsiveLandingPage extends StatefulWidget {
   const ResponsiveLandingPage({super.key});
 
   @override
+  State<ResponsiveLandingPage> createState() => _ResponsiveLandingPageState();
+}
+
+class _ResponsiveLandingPageState extends State<ResponsiveLandingPage> {
+  bool _isAppStarted = false;
+
+  void _startApp() {
+    setState(() {
+      _isAppStarted = true;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Mengecek apakah ukuran layar cukup besar (misal komputer/tablet besar)
-    final isDesktop = MediaQuery.of(context).size.width > 800;
+    final bool isDesktop = MediaQuery.of(context).size.width > 800;
+
+    if (_isAppStarted) {
+      return const Scaffold(
+        body: MobileAppLayout(),
+      );
+    }
 
     return Scaffold(
       body: Container(
@@ -61,20 +77,26 @@ class ResponsiveLandingPage extends StatelessWidget {
             center: Alignment(-0.5, -0.5),
             radius: 1.5,
             colors: [
-              Color(0xFF8B5CF6), // Ungu (Purple)
-              Color(0xFF0F172A), // Warna dasar gelap
+              Color(0xFF8B5CF6),
+              Color(0xFF0F172A),
             ],
             stops: [0.0, 1.0],
           ),
         ),
-        child: isDesktop ? const DesktopLayout() : const MobileAppLayout(),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 600),
+          child: isDesktop 
+            ? DesktopLayout(onStarted: _startApp) 
+            : MobileLandingLayout(onStarted: _startApp),
+        ),
       ),
     );
   }
 }
 
 class DesktopLayout extends StatelessWidget {
-  const DesktopLayout({super.key});
+  final VoidCallback onStarted;
+  const DesktopLayout({super.key, required this.onStarted});
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +104,6 @@ class DesktopLayout extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Teks di Kiri (Hero Text)
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40.0),
@@ -92,41 +113,18 @@ class DesktopLayout extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      // Logo dari Melodya
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          'https://cdn-icons-png.flaticon.com/512/3844/3844724.png',
-                          width: 50,
-                          height: 50,
-                          errorBuilder: (context, error, stackTrace) =>
-                              const Icon(
-                                Icons.music_note,
-                                color: Color(0xFFD946EF),
-                                size: 50,
-                              ),
-                        ),
-                      ),
+                      const Icon(Icons.music_note, color: Color(0xFFD946EF), size: 50),
                       const SizedBox(width: 16),
                       const Text(
                         'Melodya',
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+                        style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
                       ),
                     ],
                   ),
                   const SizedBox(height: 40),
                   const Text(
                     'Dengarkan Musik\nFavoritmu Tanpa Batas',
-                    style: TextStyle(
-                      fontSize: 48,
-                      fontWeight: FontWeight.bold,
-                      height: 1.2,
-                      color: Colors.white,
-                    ),
+                    style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold, height: 1.2, color: Colors.white),
                   ),
                   const SizedBox(height: 20),
                   const Text(
@@ -134,52 +132,72 @@ class DesktopLayout extends StatelessWidget {
                     style: TextStyle(fontSize: 18, color: Colors.white70),
                   ),
                   const SizedBox(height: 40),
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFD946EF), Color(0xFF8B5CF6)],
-                      ),
-                      borderRadius: BorderRadius.circular(30),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFD946EF),
+                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                      elevation: 10,
+                      shadowColor: const Color(0xFFD946EF).withValues(alpha: 0.5),
                     ),
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Colors.transparent,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 32,
-                          vertical: 16,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Mulai mendengarkan musik...'),
-                            backgroundColor: Color(0xFFD946EF),
-                          ),
-                        );
-                      },
-                      child: const Text(
-                        'Mulai Dengarkan',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
+                    onPressed: onStarted,
+                    child: const Text('Mulai Dengarkan', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
                   ),
                 ],
               ),
             ),
           ),
-
-          // Mockup HP di Kanan
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 40.0),
             child: PhoneMockup(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class MobileLandingLayout extends StatelessWidget {
+  final VoidCallback onStarted;
+  const MobileLandingLayout({super.key, required this.onStarted});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 30.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const Icon(Icons.music_note, color: Color(0xFFD946EF), size: 80),
+          const SizedBox(height: 24),
+          const Text(
+            'Melodya',
+            style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+          const SizedBox(height: 40),
+          const Text(
+            'Dengarkan Musik\nFavoritmu Tanpa Batas',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, height: 1.2, color: Colors.white),
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'Jelajahi jutaan lagu, buat playlist impianmu, dan nikmati kualitas audio terbaik.',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 16, color: Colors.white70),
+          ),
+          const SizedBox(height: 60),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFD946EF),
+              padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 18),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+              elevation: 10,
+              shadowColor: const Color(0xFFD946EF).withValues(alpha: 0.5),
+            ),
+            onPressed: onStarted,
+            child: const Text('Mulai Dengarkan', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
           ),
         ],
       ),
@@ -200,11 +218,7 @@ class PhoneMockup extends StatelessWidget {
         borderRadius: BorderRadius.circular(40),
         border: Border.all(color: Colors.white24, width: 8),
         boxShadow: const [
-          BoxShadow(
-            color: Colors.black54,
-            blurRadius: 30,
-            offset: Offset(0, 20),
-          ),
+          BoxShadow(color: Colors.black54, blurRadius: 30, offset: Offset(0, 20)),
         ],
       ),
       child: const ClipRRect(
@@ -442,31 +456,28 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A),
-      body: SafeArea(
-        // IndexedStack digunakan agar halaman bisa berganti sesuai _currentIndex
-        child: Stack(
-          children: [
-            IndexedStack(
-              index: _currentIndex,
-              children: [
-                _buildHomeContent(), // Index 0
-                _buildSearchContent(), // Index 1
-                _buildCollectionContent(), // Index 2
-              ],
+      body: Stack(
+        children: [
+          IndexedStack(
+            index: _currentIndex,
+            children: [
+              _buildHomeContent(), // Index 0
+              _buildSearchContent(), // Index 1
+              _buildCollectionContent(), // Index 2
+            ],
+          ),
+          // Mini Player di atas navigasi bawah
+          if (_currentPlayingTitle != null)
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: _buildMiniPlayer(),
             ),
-            // Mini Player di atas navigasi bawah
-            if (_currentPlayingTitle != null)
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: _buildMiniPlayer(),
-              ),
-          ],
-        ),
+        ],
       ),
 
-      // Navigasi Bawah (Home, Cari, Koleksi)
+      // Navigasi Bawah
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: const Color(0xFF1E293B),
         selectedItemColor: const Color(0xFFD946EF), // Pink
@@ -474,16 +485,13 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
-            _currentIndex = index; // Mengubah state index saat tombol ditekan
+            _currentIndex = index;
           });
         },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Cari'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.library_music),
-            label: 'Koleksi',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.library_music), label: 'Koleksi'),
         ],
       ),
     );
