@@ -7,6 +7,9 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'models/music_track.dart';
 import 'services/music_api_service.dart';
+import 'services/settings_service.dart';
+import 'profile_edit_page.dart';
+import 'terms_page.dart';
 
 void main() {
   runApp(const MelodyaApp());
@@ -26,8 +29,26 @@ class Playlist {
   });
 }
 
-class MelodyaApp extends StatelessWidget {
+class MelodyaApp extends StatefulWidget {
   const MelodyaApp({super.key});
+
+  @override
+  State<MelodyaApp> createState() => _MelodyaAppState();
+}
+
+class _MelodyaAppState extends State<MelodyaApp> {
+  late SettingsService _settingsService;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeSettings();
+  }
+
+  Future<void> _initializeSettings() async {
+    _settingsService = SettingsService();
+    await _settingsService.init();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +59,10 @@ class MelodyaApp extends StatelessWidget {
         brightness: Brightness.dark,
         scaffoldBackgroundColor: const Color(0xFF0F172A),
         primaryColor: const Color(0xFFD946EF),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
       ),
       home: const ResponsiveLandingPage(),
     );
@@ -65,8 +90,14 @@ class _ResponsiveLandingPageState extends State<ResponsiveLandingPage> {
     final bool isDesktop = MediaQuery.of(context).size.width > 800;
 
     if (_isAppStarted) {
-      return const Scaffold(
-        body: MobileAppLayout(),
+      return Scaffold(
+        body: MobileAppLayout(
+          onLogout: () {
+            setState(() {
+              _isAppStarted = false;
+            });
+          },
+        ),
       );
     }
 
@@ -147,9 +178,9 @@ class DesktopLayout extends StatelessWidget {
               ),
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 40.0),
-            child: PhoneMockup(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40.0),
+            child: PhoneMockup(onLogout: onStarted), // Gunakan callback untuk logout di mockup
           ),
         ],
       ),
@@ -205,9 +236,15 @@ class MobileLandingLayout extends StatelessWidget {
   }
 }
 
-class PhoneMockup extends StatelessWidget {
-  const PhoneMockup({super.key});
+class PhoneMockup extends StatefulWidget {
+  final VoidCallback onLogout;
+  const PhoneMockup({super.key, required this.onLogout});
 
+  @override
+  State<PhoneMockup> createState() => _PhoneMockupState();
+}
+
+class _PhoneMockupState extends State<PhoneMockup> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -221,16 +258,17 @@ class PhoneMockup extends StatelessWidget {
           BoxShadow(color: Colors.black54, blurRadius: 30, offset: Offset(0, 20)),
         ],
       ),
-      child: const ClipRRect(
-        borderRadius: BorderRadius.all(Radius.circular(32)),
-        child: MobileAppLayout(),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.all(Radius.circular(32)),
+        child: MobileAppLayout(onLogout: widget.onLogout),
       ),
     );
   }
 }
 
 class MobileAppLayout extends StatefulWidget {
-  const MobileAppLayout({super.key});
+  final VoidCallback onLogout;
+  const MobileAppLayout({super.key, required this.onLogout});
 
   @override
   State<MobileAppLayout> createState() => _MobileAppLayoutState();
@@ -273,6 +311,12 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
   bool _isLoading = false;
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounce;
+
+  // Settings State
+  late SettingsService _settingsService;
+  bool _notificationsEnabled = true;
+  bool _dataSaverEnabled = false;
+  String _audioQuality = 'Tinggi';
 
   Future<void> _fetchMusicData(String query) async {
     setState(() {
@@ -322,11 +366,21 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
     }
   }
 
+  Future<void> _initializeSettings() async {
+    _settingsService = SettingsService();
+    await _settingsService.init();
+    setState(() {
+      _audioQuality = _settingsService.getAudioQuality();
+      _dataSaverEnabled = _settingsService.isDataSaverEnabled();
+      _notificationsEnabled = _settingsService.areNotificationsEnabled();
+    });
+  }
+
   @override
   void initState() {
     super.initState();
-    _fetchMusicData('Justin Bieber'); // Kembali ke iTunes untuk akses lagu populer
-    // Listen to player state changes
+    _initializeSettings();
+    _fetchMusicData('Justin Bieber');
     _audioPlayer.onPlayerStateChanged.listen((state) {
       if (mounted) {
         setState(() {
@@ -510,9 +564,20 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Halo Divaa!',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 20),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    onPressed: widget.onLogout,
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Halo Divaa!',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                ],
               ),
               GestureDetector(
                 onTap: () => _showUserProfile(context),
@@ -654,7 +719,13 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
                 ),
                 title: const Text('Pengaturan', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.white54),
-                onTap: () => Navigator.pop(context),
+                onTap: () {
+                  Navigator.pop(context); // Tutup modal
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SettingsPage()),
+                  );
+                },
               ),
               const SizedBox(height: 8),
               ListTile(
@@ -665,7 +736,10 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
                 ),
                 title: const Text('Keluar', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.redAccent)),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.white54),
-                onTap: () => Navigator.pop(context),
+                onTap: () {
+                  Navigator.pop(context); // Tutup modal
+                  widget.onLogout(); // Jalankan logout
+                },
               ),
               const SizedBox(height: 20),
             ],
@@ -911,9 +985,20 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Cari',
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+          Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 20),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                onPressed: widget.onLogout,
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                'Cari',
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+              ),
+            ],
           ),
           const SizedBox(height: 20),
           // Kolom Pencarian
@@ -1015,9 +1100,20 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Koleksi Kamu',
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+          Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 20),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                onPressed: widget.onLogout,
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                'Koleksi Kamu',
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+              ),
+            ],
           ),
           const SizedBox(height: 20),
 
@@ -1493,6 +1589,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
       }
     } else {
       await _audioPlayer.stop();
+      // Kualitas audio akan diterapkan berdasarkan settings
       await _audioPlayer.play(UrlSource(url));
       setState(() {
         _currentPlayingTitle = title;
@@ -1687,5 +1784,213 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
         );
       }
     });
+  }
+}
+
+class SettingsPage extends StatefulWidget {
+  const SettingsPage({super.key});
+
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  late SettingsService _settingsService;
+  late String _audioQuality;
+  late bool _dataSaverEnabled;
+  late bool _notificationsEnabled;
+  late String _userName;
+  late String _userEmail;
+  Uint8List? _profileImage;
+
+  @override
+  void initState() {
+    super.initState();
+    _settingsService = SettingsService();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    await _settingsService.init();
+    setState(() {
+      _audioQuality = _settingsService.getAudioQuality();
+      _dataSaverEnabled = _settingsService.isDataSaverEnabled();
+      _notificationsEnabled = _settingsService.areNotificationsEnabled();
+      _userName = _settingsService.getUserName();
+      _userEmail = _settingsService.getUserEmail();
+    });
+  }
+
+  Future<void> _updateDataSaver(bool value) async {
+    await _settingsService.setDataSaverEnabled(value);
+    setState(() {
+      _dataSaverEnabled = value;
+    });
+  }
+
+  Future<void> _updateNotifications(bool value) async {
+    await _settingsService.setNotificationsEnabled(value);
+    setState(() {
+      _notificationsEnabled = value;
+    });
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(value ? 'Notifikasi diaktifkan' : 'Notifikasi dinonaktifkan'),
+          backgroundColor: const Color(0xFFD946EF),
+        ),
+      );
+    }
+  }
+
+  void _goToProfileEdit() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProfileEditPage(
+          initialName: _userName,
+          initialEmail: _userEmail,
+          initialImage: _profileImage,
+          settingsService: _settingsService,
+        ),
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        _userName = result['name'] ?? _userName;
+        _userEmail = result['email'] ?? _userEmail;
+        _profileImage = result['image'];
+      });
+    }
+  }
+
+  void _goToTerms() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const TermsPage()),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Pengaturan'),
+        centerTitle: true,
+      ),
+      body: ListView(
+        children: [
+          _buildSectionHeader('Akun'),
+          ListTile(
+            leading: const Icon(Icons.person_outline, color: Colors.white70),
+            title: const Text('Profil'),
+            subtitle: Text('$_userName, $_userEmail', style: const TextStyle(color: Colors.white54)),
+            trailing: const Icon(Icons.chevron_right, color: Colors.white54),
+            onTap: _goToProfileEdit,
+          ),
+          const Divider(color: Colors.white10),
+          _buildSectionHeader('Kualitas Audio'),
+          ListTile(
+            leading: const Icon(Icons.high_quality, color: Colors.white70),
+            title: const Text('Kualitas Streaming'),
+            subtitle: Text(_audioQuality, style: const TextStyle(color: Colors.white54)),
+            onTap: _showAudioQualityDialog,
+          ),
+          SwitchListTile(
+            secondary: const Icon(Icons.data_usage, color: Colors.white70),
+            title: const Text('Mode Hemat Data'),
+            subtitle: const Text('Mengurangi kualitas audio untuk menghemat kuota', style: TextStyle(color: Colors.white54)),
+            value: _dataSaverEnabled,
+            activeColor: const Color(0xFFD946EF),
+            onChanged: _updateDataSaver,
+          ),
+          const Divider(color: Colors.white10),
+          _buildSectionHeader('Notifikasi'),
+          SwitchListTile(
+            secondary: const Icon(Icons.notifications_none, color: Colors.white70),
+            title: const Text('Notifikasi Aplikasi'),
+            subtitle: const Text('Dapatkan info lagu baru dan update lainnya', style: TextStyle(color: Colors.white54)),
+            value: _notificationsEnabled,
+            activeColor: const Color(0xFFD946EF),
+            onChanged: _updateNotifications,
+          ),
+          const Divider(color: Colors.white10),
+          _buildSectionHeader('Tentang'),
+          const ListTile(
+            leading: Icon(Icons.info_outline, color: Colors.white70),
+            title: Text('Versi Aplikasi'),
+            trailing: Text('v1.2.0', style: TextStyle(color: Colors.white54)),
+          ),
+          ListTile(
+            leading: const Icon(Icons.description_outlined, color: Colors.white70),
+            title: const Text('Syarat & Ketentuan'),
+            onTap: _goToTerms,
+          ),
+          const SizedBox(height: 40),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Text(
+              'Melodya Music Player\nDibuat dengan ❤️ untuk pecinta musik',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white38, fontSize: 12),
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+      child: Text(
+        title.toUpperCase(),
+        style: const TextStyle(
+          color: Color(0xFFD946EF),
+          fontWeight: FontWeight.bold,
+          fontSize: 12,
+          letterSpacing: 1.2,
+        ),
+      ),
+    );
+  }
+
+  void _showAudioQualityDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1E293B),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Pilih Kualitas Audio'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: ['Otomatis', 'Rendah', 'Normal', 'Tinggi', 'Sangat Tinggi'].map((quality) {
+            return RadioListTile<String>(
+              title: Text(quality, style: const TextStyle(color: Colors.white)),
+              value: quality,
+              groupValue: _audioQuality,
+              activeColor: const Color(0xFFD946EF),
+              onChanged: (value) async {
+                await _settingsService.setAudioQuality(value!);
+                if (mounted) {
+                  setState(() {
+                    _audioQuality = value;
+                  });
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Kualitas audio diubah menjadi: $value'),
+                      backgroundColor: const Color(0xFFD946EF),
+                    ),
+                  );
+                }
+              },
+            );
+          }).toList(),
+        ),
+      ),
+    );
   }
 }
