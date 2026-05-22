@@ -12,6 +12,8 @@ import 'services/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'services/firebase_service.dart';
 import 'screens/login_screen.dart';
+import 'screens/lyrics_screen.dart';
+import 'screens/settings_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -1224,6 +1226,18 @@ class _MobileAppLayoutState extends State<MobileAppLayout> {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          IconButton(
+            icon: const Icon(Icons.lyrics, color: Colors.white54),
+            tooltip: 'Lihat Lirik',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => LyricsScreen(track: track),
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: Icon(
               _followedTitles.contains(track.title)

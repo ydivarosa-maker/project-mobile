@@ -7,6 +7,7 @@ class MusicTrack {
   final String previewUrl;
   final Color color;
   final IconData icon;
+  final String? lyrics;
 
   MusicTrack({
     required this.title,
@@ -15,6 +16,7 @@ class MusicTrack {
     required this.previewUrl,
     this.color = const Color(0xFFD946EF),
     this.icon = Icons.music_note,
+    this.lyrics,
   });
 
   factory MusicTrack.fromJson(Map<String, dynamic> json) {
@@ -23,7 +25,9 @@ class MusicTrack {
       artist: json['artistName'] ?? 'Unknown Artist',
       artworkUrl: json['artworkUrl100'] ?? '',
       previewUrl: json['previewUrl'] ?? '',
-      color: Colors.primaries[(json['trackId']?.hashCode ?? 0).abs() % Colors.primaries.length],
+      color:
+          Colors.primaries[(json['trackId']?.hashCode ?? 0).abs() %
+              Colors.primaries.length],
     );
   }
 }
