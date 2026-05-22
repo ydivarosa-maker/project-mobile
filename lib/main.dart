@@ -154,10 +154,10 @@ class _AuthGateState extends State<AuthGate> {
             },
           );
         }
-        // Belum login → tampilkan WelcomeScreen dengan tombol mulai langsung ke landing app
-        return WelcomeScreen(
+        // Belum login → tampilkan layar awal sederhana dengan tombol "Mulai Dengarkan"
+        return SimpleStartScreen(
           onStarted: () {
-            Navigator.of(context).push(
+            Navigator.of(context).pushReplacement(
               MaterialPageRoute(
                 builder: (_) => MobileAppLayout(
                   onLogout: () async {
@@ -169,6 +169,87 @@ class _AuthGateState extends State<AuthGate> {
           },
         );
       },
+    );
+  }
+}
+
+class SimpleStartScreen extends StatelessWidget {
+  final VoidCallback onStarted;
+  const SimpleStartScreen({super.key, required this.onStarted});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: RadialGradient(
+            center: Alignment(-0.5, -0.5),
+            radius: 1.5,
+            colors: [Color(0xFF8B5CF6), Color(0xFF0F172A)],
+            stops: [0.0, 1.0],
+          ),
+        ),
+        child: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.music_note,
+                    color: Color(0xFFD946EF),
+                    size: 90,
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Melodya',
+                    style: TextStyle(
+                      fontSize: 44,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Dengarkan Musik\nFavoritmu Tanpa Batas',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white70,
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFD946EF),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 48,
+                        vertical: 16,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    onPressed: onStarted,
+                    child: const Text(
+                      'Mulai Dengarkan',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
