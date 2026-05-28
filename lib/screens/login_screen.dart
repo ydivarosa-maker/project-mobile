@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import '../services/auth_service.dart';
+import 'phone_auth_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   final VoidCallback? onBypassLogin;
@@ -76,6 +77,45 @@ class _LoginScreenState extends State<LoginScreen>
       if (mounted) {
         setState(() => _isLoading = false);
       }
+    }
+  }
+
+  // ─────────────────────────────────────────────
+  // Login dengan Google
+  // ─────────────────────────────────────────────
+  Future<void> _signInWithGoogle() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+    try {
+      final result = await _auth.signInWithGoogle();
+      if (result == null) {
+        // User membatalkan
+        setState(() => _isLoading = false);
+        return;
+      }
+      if (mounted && Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  // ─────────────────────────────────────────────
+  // Login dengan Nomor Telepon
+  // ─────────────────────────────────────────────
+  Future<void> _signInWithPhone() async {
+    final result = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => const PhoneAuthScreen()),
+    );
+    // Jika berhasil login via OTP, pop login screen
+    if (result == true && mounted && Navigator.canPop(context)) {
+      Navigator.pop(context);
     }
   }
 
@@ -420,7 +460,71 @@ class _LoginScreenState extends State<LoginScreen>
                     ),
                     const SizedBox(height: 16),
 
-                    // Guest Button
+                    // ── Tombol Google ──
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: const Color(0xFF1A1A2E),
+                          side: BorderSide.none,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 2,
+                        ),
+                        onPressed: _isLoading ? null : _signInWithGoogle,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // Logo Google SVG-like dengan warna asli
+                            SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CustomPaint(painter: _GoogleLogoPainter()),
+                            ),
+                            const SizedBox(width: 10),
+                            const Text(
+                              'Masuk dengan Google',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF1A1A2E),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+
+                    // ── Tombol Nomor Telepon ──
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.white70,
+                          side: BorderSide(
+                            color: const Color(0xFFD946EF).withValues(alpha: 0.5),
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        onPressed: _isLoading ? null : _signInWithPhone,
+                        icon: const Icon(Icons.phone_android,
+                            color: Color(0xFFD946EF), size: 20),
+                        label: const Text(
+                          'Masuk dengan Nomor Telepon',
+                          style: TextStyle(fontSize: 14),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+
+                    // ── Tombol Tamu ──
                     SizedBox(
                       width: double.infinity,
                       height: 50,
@@ -608,4 +712,74 @@ class _LoginScreenState extends State<LoginScreen>
       ),
     );
   }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Custom Painter: Logo Google (4 warna asli) tanpa asset gambar
+// ─────────────────────────────────────────────────────────────
+class _GoogleLogoPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double cx = size.width / 2;
+    final double cy = size.height / 2;
+    final double r = size.width / 2;
+
+    final paint = Paint()..style = PaintingStyle.fill;
+
+    // ── Lingkaran merah (kanan atas + kiri bawah) ──
+    paint.color = const Color(0xFFEA4335);
+    canvas.drawArc(
+      Rect.fromCircle(center: Offset(cx, cy), radius: r),
+      -1.05, // ~-60°
+      2.19,  // ~125°
+      true,
+      paint,
+    );
+
+    // ── Kiri bawah: biru ──
+    paint.color = const Color(0xFF4285F4);
+    canvas.drawArc(
+      Rect.fromCircle(center: Offset(cx, cy), radius: r),
+      1.14,  // ~65°
+      1.57,  // 90°
+      true,
+      paint,
+    );
+
+    // ── Bawah: hijau ──
+    paint.color = const Color(0xFF34A853);
+    canvas.drawArc(
+      Rect.fromCircle(center: Offset(cx, cy), radius: r),
+      2.71,  // ~155°
+      1.57,
+      true,
+      paint,
+    );
+
+    // ── Kanan: kuning ──
+    paint.color = const Color(0xFFFBBC05);
+    canvas.drawArc(
+      Rect.fromCircle(center: Offset(cx, cy), radius: r),
+      -2.09, // ~-120°
+      1.05,
+      true,
+      paint,
+    );
+
+    // Bagian tengah putih (lubang G)
+    paint.color = Colors.white;
+    canvas.drawCircle(Offset(cx, cy), r * 0.6, paint);
+
+    // Bar horizontal kanan G
+    final barPaint = Paint()
+      ..color = const Color(0xFF4285F4)
+      ..style = PaintingStyle.fill;
+    canvas.drawRect(
+      Rect.fromLTWH(cx, cy - r * 0.12, r, r * 0.24),
+      barPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

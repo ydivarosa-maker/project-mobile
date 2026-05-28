@@ -13,7 +13,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'services/firebase_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/lyrics_screen.dart';
-import 'screens/settings_screen.dart';
 
 const Color kColorBackground = Color(0xFF000000);
 const Color kColorSurface = Color(0xFF090009);
@@ -552,6 +551,23 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
   Uint8List? _profileImageBytes;
   String? _profileImageUrl; // URL dari Firebase Storage
   final ImagePicker _picker = ImagePicker();
+  String _profileName = 'Tamu';
+  String _profileEmail = 'Mode tamu';
+
+  Future<void> _loadProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+    final user = _authService.currentUser;
+    final isAnon = user?.isAnonymous ?? true;
+    setState(() {
+      if (isAnon) {
+        _profileName = prefs.getString('profileName') ?? 'Tamu';
+        _profileEmail = prefs.getString('profileEmail') ?? 'Mode tamu';
+      } else {
+        _profileName = prefs.getString('profileName') ?? user?.displayName ?? user?.email?.split('@').first ?? 'User';
+        _profileEmail = prefs.getString('profileEmail') ?? user?.email ?? '';
+      }
+    });
+  }
 
   // API State
   final MusicApiService _apiService = MusicApiService();
@@ -630,6 +646,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
   @override
   void initState() {
     super.initState();
+    _loadProfile();
     _rotationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 18),
@@ -887,7 +904,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                   const SizedBox(width: 8), // Placeholder untuk alignment
                   const SizedBox(width: 8),
                   Text(
-                    "Halo, ${_isAnonymous ? 'Tamu' : (_authService.currentUser?.displayName?.split(' ').first ?? _authService.currentUser?.email?.split('@').first ?? 'User')}!",
+                    'Halo, ${_profileName.split(' ').first}',
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -1042,10 +1059,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    _isAnonymous
-                        ? 'Tamu'
-                        : (_authService.currentUser?.displayName ??
-                              'Melodya User'),
+                    _profileName,
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -1054,9 +1068,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    _isAnonymous
-                        ? 'Mode tamu'
-                        : (_authService.currentUser?.email ?? ''),
+                    _profileEmail,
                     style: const TextStyle(color: Colors.white54),
                   ),
                   const SizedBox(height: 24),
@@ -1088,7 +1100,9 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                         MaterialPageRoute(
                           builder: (context) => const SettingsPage(),
                         ),
-                      );
+                      ).then((_) {
+                        _loadProfile();
+                      });
                     },
                   ),
                   const SizedBox(height: 8),
@@ -2550,6 +2564,9 @@ class _SettingsPageState extends State<SettingsPage> {
   bool _dataSaverEnabled = false;
   String _audioQuality = 'Tinggi';
   SharedPreferences? _prefs;
+  final AuthService _authService = AuthService();
+  String _profileName = 'Tamu';
+  String _profileEmail = 'Mode tamu';
 
   @override
   void initState() {
@@ -2559,10 +2576,19 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _loadSettings() async {
     _prefs = await SharedPreferences.getInstance();
+    final user = _authService.currentUser;
+    final isAnon = user?.isAnonymous ?? true;
     setState(() {
       _notificationsEnabled = _prefs?.getBool('notificationsEnabled') ?? true;
       _dataSaverEnabled = _prefs?.getBool('dataSaverEnabled') ?? false;
       _audioQuality = _prefs?.getString('audioQuality') ?? 'Tinggi';
+      if (isAnon) {
+        _profileName = _prefs?.getString('profileName') ?? 'Tamu';
+        _profileEmail = _prefs?.getString('profileEmail') ?? 'Mode tamu';
+      } else {
+        _profileName = _prefs?.getString('profileName') ?? user?.displayName ?? user?.email?.split('@').first ?? 'User';
+        _profileEmail = _prefs?.getString('profileEmail') ?? user?.email ?? '';
+      }
     });
   }
 
@@ -2584,9 +2610,9 @@ class _SettingsPageState extends State<SettingsPage> {
           ListTile(
             leading: const Icon(Icons.person_outline, color: Colors.white70),
             title: const Text('Profil'),
-            subtitle: const Text(
-              'Divaa, divaa@example.com',
-              style: TextStyle(color: Colors.white54),
+            subtitle: Text(
+              '$_profileName, $_profileEmail',
+              style: const TextStyle(color: Colors.white54),
             ),
             trailing: const Icon(Icons.chevron_right, color: Colors.white54),
             onTap: _showEditProfileDialog,
@@ -2750,8 +2776,10 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   void _showEditProfileDialog() {
-    final nameController = TextEditingController(text: 'Divaa');
-    final emailController = TextEditingController(text: 'divaa@example.com');
+    final nameController = TextEditingController(text: _profileName);
+    final emailController = TextEditingController(
+      text: _profileEmail == 'Mode tamu' ? '' : _profileEmail,
+    );
 
     showDialog(
       context: context,
@@ -2805,14 +2833,50 @@ class _SettingsPageState extends State<SettingsPage> {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Profil berhasil diperbarui!'),
-                  backgroundColor: Color.fromARGB(255, 209, 60, 255),
-                ),
-              );
+            onPressed: () async {
+              final newName = nameController.text.trim();
+              final newEmail = emailController.text.trim();
+
+              if (newName.isNotEmpty) {
+                _prefs?.setString('profileName', newName);
+                if (newEmail.isNotEmpty) {
+                  _prefs?.setString('profileEmail', newEmail);
+                }
+
+                final user = _authService.currentUser;
+                if (user != null && !user.isAnonymous) {
+                  try {
+                    await user.updateDisplayName(newName);
+                    if (newEmail.isNotEmpty && newEmail != user.email) {
+                      await user.updateEmail(newEmail);
+                    }
+                  } catch (e) {
+                    debugPrint('Error updating firebase profile: $e');
+                  }
+                }
+
+                setState(() {
+                  _profileName = newName;
+                  if (newEmail.isNotEmpty) {
+                    _profileEmail = newEmail;
+                  }
+                });
+
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Profil berhasil diperbarui!'),
+                    backgroundColor: Color.fromARGB(255, 209, 60, 255),
+                  ),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Nama tidak boleh kosong!'),
+                    backgroundColor: Colors.redAccent,
+                  ),
+                );
+              }
             },
             child: const Text('Simpan', style: TextStyle(color: Colors.white)),
           ),
