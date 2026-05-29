@@ -143,7 +143,7 @@ class _LyricsScreenState extends State<LyricsScreen> {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(12),
                       child: Image.network(
-                        widget.track.artworkUrl,
+                        widget.track.imageUrl,
                         width: 200,
                         height: 200,
                         fit: BoxFit.cover,

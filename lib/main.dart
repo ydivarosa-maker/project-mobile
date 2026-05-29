@@ -504,6 +504,9 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
   Set<String> _followedTitles = {};
   List<MusicTrack> _followedApiTracks = [];
 
+  // State untuk riwayat pemutaran (lokal)
+  List<MusicTrack> _recentTracks = [];
+
   // State untuk playlist (lokal)
   final List<Playlist> _userPlaylists = [
     Playlist(
@@ -620,6 +623,8 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
         });
       }
     });
+    
+    _loadRecentTracks();
 
     // Listen to player state changes
     _audioPlayer.onPlayerStateChanged.listen((state) {
@@ -654,6 +659,16 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
     });
   }
 
+  void _loadRecentTracks() {
+    _localService.getRecent().then((tracks) {
+      if (mounted) {
+        setState(() {
+          _recentTracks = tracks;
+        });
+      }
+    });
+  }
+
   @override
   void dispose() {
     _rotationController.dispose();
@@ -666,60 +681,102 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
   // Data semua track yang tersedia
   static const List<Map<String, dynamic>> _allTracks = [
     {
+      'title': 'Synthwave Eclipse',
+      'subtitle': 'Artis Neon Horizon',
+      'icon': Icons.music_note,
+      'color': kColorAccentPurple,
+      'url': 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/c3/84/c4/c384c478-f7b5-fb35-46eb-5bb7d22b2707/m4a.high.stream.mp4',
+    },
+    {
       'title': 'GHOST',
       'subtitle': 'Artis Justin Bieber',
       'icon': Icons.music_note,
       'color': kColorAccentPurple,
-      'url': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+      'url': 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/4a/eb/1e/4aeb1e8f-7f72-74cc-7f7a-1db2a32eb518/m4a.high.stream.mp4',
     },
     {
       'title': 'SORRY',
       'subtitle': 'Artis Justin Bieber',
       'icon': Icons.library_music,
       'color': kColorAccent,
-      'url': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+      'url': 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/cd/85/6d/cd856d3a-be7d-df98-5c12-32111c1dfb7a/m4a.high.stream.mp4',
     },
     {
       'title': 'I DONT CARE',
       'subtitle': 'Artis Justin Bieber',
       'icon': Icons.album,
       'color': kColorAccentCyan,
-      'url': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
+      'url': 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview128/v4/31/5b/4b/315b4b1a-2009-4171-8bc4-72791448b111/m4a.high.stream.mp4',
+    },
+    {
+      'title': 'After Hours',
+      'subtitle': 'Artis The Weeknd',
+      'icon': Icons.waves,
+      'color': Color(0xFF8E2DE2),
+      'url': 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/0f/50/de/0f50decf-f6f8-9a99-b1d6-b8166c30f4e3/m4a.high.stream.mp4',
+    },
+    {
+      'title': 'Currents',
+      'subtitle': 'Artis Tame Impala',
+      'icon': Icons.nightlight_round,
+      'color': Color(0xFF2C3E50),
+      'url': 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/2e/d0/52/2ed0525d-4f11-7360-1e5b-f54f7a26f634/m4a.high.stream.mp4',
+    },
+    {
+      'title': 'Daily Mix 1',
+      'subtitle': 'Artis M83, Justice, Daft Punk',
+      'icon': Icons.album,
+      'color': Colors.tealAccent,
+      'url': 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/c5/4b/65/c54b656b-a25e-e478-bfcf-76d33306c5be/m4a.high.stream.mp4',
+    },
+    {
+      'title': 'Late Night Jazz',
+      'subtitle': 'Artis Jazz Classics',
+      'icon': Icons.mic,
+      'color': Colors.orangeAccent,
+      'url': 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/44/2c/3e/442c3e1e-21ef-d75d-313d-cd30f5a7702f/m4a.high.stream.mp4',
+    },
+    {
+      'title': 'Experimental Void',
+      'subtitle': 'Artis IDM & Ambient',
+      'icon': Icons.graphic_eq,
+      'color': Colors.purpleAccent,
+      'url': 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/e0/75/5a/e0755a57-0a4a-4e8a-e9fa-5eb71a28a211/m4a.high.stream.mp4',
     },
     {
       'title': 'Kisah Sukses',
       'subtitle': 'Podcast Motivasi',
       'icon': Icons.mic,
       'color': kColorAccentCyan,
-      'url': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
+      'url': 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/58/b7/cc/58b7cc40-8809-58b1-38eb-9a2cf52a0a2d/m4a.high.stream.mp4',
     },
     {
       'title': 'Obrolan Malam',
       'subtitle': 'Podcast Horor',
       'icon': Icons.mic_external_on,
       'color': kColorAccent,
-      'url': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3',
+      'url': 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/c3/84/c4/c384c478-f7b5-fb35-46eb-5bb7d22b2707/m4a.high.stream.mp4',
     },
     {
       'title': 'Dunia Tech',
       'subtitle': 'Podcast IT',
       'icon': Icons.headset_mic,
       'color': kColorAccentCyan,
-      'url': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3',
+      'url': 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/cd/85/6d/cd856d3a-be7d-df98-5c12-32111c1dfb7a/m4a.high.stream.mp4',
     },
     {
       'title': 'Pagi Ceria',
       'subtitle': 'Radio FM Nasional',
       'icon': Icons.radio,
       'color': kColorAccentCyan,
-      'url': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3',
+      'url': 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview128/v4/31/5b/4b/315b4b1a-2009-4171-8bc4-72791448b111/m4a.high.stream.mp4',
     },
     {
       'title': 'Sore Santai',
       'subtitle': 'Hits Radio Lokal',
       'icon': Icons.radio,
       'color': kColorAccentPurple,
-      'url': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
+      'url': 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/0f/50/de/0f50decf-f6f8-9a99-b1d6-b8166c30f4e3/m4a.high.stream.mp4',
     },
   ];
 
@@ -901,6 +958,31 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                 ],
               ),
             ),
+            const SizedBox(height: 20),
+
+            // Category Chips
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    _buildCategoryChip('Semua', _selectedCategory == 'Semua'),
+                    _buildCategoryChip('Musik', _selectedCategory == 'Musik'),
+                    _buildCategoryChip('Podcast', _selectedCategory == 'Podcast'),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Featured Card / Now Playing Card
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: _buildFeaturedCard(),
+            ),
+
             const SizedBox(height: 30),
 
             // Recently Played
@@ -939,23 +1021,37 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
             const SizedBox(height: 16),
             SizedBox(
               height: 220,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                children: [
-                  _buildRecentCard('After Hours', 'The Weeknd', [const Color(0xFF8E2DE2), const Color(0xFF4A00E0)], Icons.waves),
-                  _buildRecentCard('Currents', 'Tame Impala', [const Color(0xFF2C3E50), const Color(0xFF3498DB)], Icons.nightlight_round),
-                ],
-              ),
+              child: _recentTracks.isEmpty
+                  ? const Center(
+                      child: Text(
+                        'Belum ada riwayat pemutaran',
+                        style: TextStyle(color: Colors.white54),
+                      ),
+                    )
+                  : ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                      itemCount: _recentTracks.length,
+                      itemBuilder: (context, index) {
+                        final track = _recentTracks[index];
+                        return _buildRecentCard(
+                          track.title,
+                          track.artist,
+                          [track.color, track.color.withOpacity(0.5)],
+                          track.icon,
+                          track.audioUrl,
+                        );
+                      },
+                    ),
             ),
 
             const SizedBox(height: 30),
 
-            // Made For You
+            // Local Playlists
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.0),
               child: Text(
-                'Made For You',
+                'Local Playlists',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -968,11 +1064,11 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Column(
                 children: [
-                  _buildMadeForYouCard('Daily Mix 1', 'Based on your love for M83, Justice, and Daft Punk. Fresh...', Icons.album, Colors.tealAccent),
+                  _buildLocalPlaylistCard('Favorites / Top Tracks', 'Lagu-lagu favorit yang sering diputar.', Icons.favorite, Colors.tealAccent, 'audio/song1.mp3'),
                   const SizedBox(height: 12),
-                  _buildMadeForYouCard('Late Night Jazz', 'Smooth trumpets and mellow keys for the quiet hours....', Icons.mic, Colors.orangeAccent),
+                  _buildLocalPlaylistCard('All Songs / Local Audio', 'Daftar semua lagu di penyimpananmu.', Icons.library_music, Colors.orangeAccent, 'audio/song2.mp3'),
                   const SizedBox(height: 12),
-                  _buildMadeForYouCard('Experimental Void', 'Pushing the boundaries of sound. Glitch, IDM, and ambient textur...', Icons.graphic_eq, Colors.purpleAccent),
+                  _buildLocalPlaylistCard('Acoustic Chill', 'Kumpulan lagu akustik santai.', Icons.coffee, Colors.purpleAccent, 'audio/song3.mp3'),
                 ],
               ),
             ),
@@ -982,15 +1078,10 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
     );
   }
 
-  Widget _buildRecentCard(String title, String subtitle, List<Color> gradientColors, IconData defaultIcon) {
+  Widget _buildRecentCard(String title, String subtitle, List<Color> gradientColors, IconData defaultIcon, String audioUrl) {
     return GestureDetector(
-      onTap: () async {
-        setState(() {
-          _currentPlayingTitle = title;
-          _currentApiTrack = null;
-          _showPlayerUi = true;
-        });
-        await _audioPlayer.play(UrlSource('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'));
+      onTap: () {
+        _playTrack(title, audioUrl);
       },
       child: Container(
         width: 140,
@@ -1039,15 +1130,12 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
     );
   }
 
-  Widget _buildMadeForYouCard(String title, String subtitle, IconData icon, Color accentColor) {
+  Widget _buildLocalPlaylistCard(String title, String subtitle, IconData icon, Color accentColor, String audioUrl) {
+    final bool isThisPlaying = _currentPlayingTitle == title && _isPlaying;
+
     return GestureDetector(
-      onTap: () async {
-        setState(() {
-          _currentPlayingTitle = title;
-          _currentApiTrack = null;
-          _showPlayerUi = true;
-        });
-        await _audioPlayer.play(UrlSource('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'));
+      onTap: () {
+        _playTrack(title, audioUrl);
       },
       child: Container(
         decoration: BoxDecoration(
@@ -1074,8 +1162,8 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: isThisPlaying ? accentColor : Colors.white,
                       fontWeight: FontWeight.w600,
                       fontSize: 15,
                     ),
@@ -1098,9 +1186,13 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.white24),
+                border: Border.all(color: isThisPlaying ? accentColor : Colors.white24),
               ),
-              child: const Icon(Icons.play_arrow, color: Colors.white70, size: 20),
+              child: Icon(
+                isThisPlaying ? Icons.pause : Icons.play_arrow, 
+                color: isThisPlaying ? accentColor : Colors.white70, 
+                size: 20
+              ),
             ),
           ],
         ),
@@ -1412,28 +1504,15 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
     }
   }
 
-  Widget _buildNowPlayingCard() {
-    final MusicTrack? currentTrack = _currentApiTrack;
-    Map<String, dynamic>? staticTrack;
-    if (currentTrack == null && _currentPlayingTitle != null) {
-      try {
-        staticTrack = _allTracks.firstWhere(
-          (t) => t['title'] == _currentPlayingTitle,
-        );
-      } catch (e) {
-        staticTrack = null;
-      }
-    }
 
-    final String title =
-        currentTrack?.title ?? staticTrack?['title'] ?? 'Sedang Diputar';
-    final String subtitle =
-        currentTrack?.artist ??
-        staticTrack?['subtitle'] ??
-        'Artis tidak diketahui';
-    final Color color =
-        currentTrack?.color ?? staticTrack?['color'] ?? kColorAccent;
-    final String artworkUrl = currentTrack?.artworkUrl ?? '';
+  Widget _buildNowPlayingCard() {
+    final track = _currentlyPlayingTrack;
+    if (track == null) return const SizedBox.shrink();
+
+    final String title = track.title;
+    final String subtitle = 'Artis ${track.artist}';
+    final Color color = track.color;
+    final String imageUrl = track.imageUrl;
 
     return Container(
       key: const ValueKey('now_playing'),
@@ -1443,7 +1522,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [kColorAccent, kColorAccentPurple],
+          colors: [color, color.withOpacity(0.5)],
         ),
       ),
       padding: const EdgeInsets.all(20),
@@ -1456,9 +1535,9 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                 width: 90,
                 height: 90,
                 decoration: BoxDecoration(color: color.withOpacity(0.2)),
-                child: artworkUrl.isNotEmpty
-                    ? Image.network(artworkUrl, fit: BoxFit.cover)
-                    : Icon(Icons.album, color: color, size: 46),
+                child: imageUrl.isNotEmpty
+                    ? Image.network(imageUrl, fit: BoxFit.cover)
+                    : Icon(track.icon, color: Colors.white, size: 46),
               ),
             ),
           ),
@@ -1500,7 +1579,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                     ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
-                        foregroundColor: kColorAccent,
+                        foregroundColor: color,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 18,
                           vertical: 12,
@@ -1509,11 +1588,15 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                           borderRadius: BorderRadius.circular(30),
                         ),
                       ),
-                      onPressed: () {
-                        if (_isPlaying) {
-                          _audioPlayer.pause();
-                        } else {
-                          _audioPlayer.resume();
+                      onPressed: () async {
+                        try {
+                          if (_isPlaying) {
+                            await _audioPlayer.pause();
+                          } else {
+                            await _audioPlayer.resume();
+                          }
+                        } catch (e) {
+                          _handlePlayerError(e);
                         }
                       },
                       icon: Icon(
@@ -1523,22 +1606,28 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                       label: Text(_isPlaying ? 'Pause' : 'Play'),
                     ),
                     const SizedBox(width: 12),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white24,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        'Now Playing',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.9),
-                          fontWeight: FontWeight.w600,
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white24,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
                         ),
                       ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => LyricsScreen(track: track),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.lyrics, size: 20),
+                      label: const Text('Lirik'),
                     ),
                   ],
                 ),
@@ -1600,27 +1689,16 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
 
     return ListTile(
       onTap: () async {
-        if (track.previewUrl.isEmpty) {
+        if (track.audioUrl.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text(
-                'Maaf, Spotify tidak menyediakan pratinjau audio untuk lagu ini.',
-              ),
+              content: Text('Maaf, URL audio tidak tersedia untuk lagu ini.'),
               backgroundColor: Colors.orange,
             ),
           );
           return;
         }
-        if (isCurrent && _isPlaying) {
-          await _audioPlayer.pause();
-        } else {
-          setState(() {
-            _currentPlayingTitle = track.title;
-            _currentApiTrack = track;
-            _showPlayerUi = true;
-          });
-          await _audioPlayer.play(UrlSource(track.previewUrl));
-        }
+        await _playOrPause(track);
       },
       contentPadding: const EdgeInsets.symmetric(vertical: 8),
       leading: Container(
@@ -1629,14 +1707,14 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
         decoration: BoxDecoration(
           color: track.color.withOpacity(0.2),
           borderRadius: BorderRadius.circular(10),
-          image: track.artworkUrl.isNotEmpty
+          image: track.imageUrl.isNotEmpty
               ? DecorationImage(
-                  image: NetworkImage(track.artworkUrl),
+                  image: NetworkImage(track.imageUrl),
                   fit: BoxFit.cover,
                 )
               : null,
         ),
-        child: track.artworkUrl.isEmpty
+        child: track.imageUrl.isEmpty
             ? Icon(track.icon, color: track.color)
             : null,
       ),
@@ -2236,205 +2314,13 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
 
           const SizedBox(height: 20),
 
-          // --- Scrollable Content ---
+          // --- Scrollable Content (Tab-aware) ---
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.only(bottom: 100),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // --- Liked Songs Card ---
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: GestureDetector(
-                      onTap: () {
-                        // Show liked songs
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        height: 180,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          gradient: const LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              Color(0xFF1A0030),
-                              Color(0xFF2D004F),
-                              Color(0xFF1A0030),
-                            ],
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF7B1FA2).withOpacity(0.3),
-                              blurRadius: 20,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: Stack(
-                            children: [
-                              // Waveform background
-                              Positioned.fill(
-                                child: CustomPaint(
-                                  painter: _LibraryWaveformPainter(),
-                                ),
-                              ),
-                              // Gradient overlay
-                              Positioned.fill(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                      colors: [
-                                        Colors.transparent,
-                                        const Color(0xFF1A0030).withOpacity(0.7),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              // Content
-                              Padding(
-                                padding: const EdgeInsets.all(20),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    // Top: heart + COLLECTION label
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.favorite,
-                                          color: const Color(0xFFCE93D8),
-                                          size: 18,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          'COLLECTION',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                            color: const Color(0xFFCE93D8),
-                                            letterSpacing: 1.5,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    // Bottom: title, subtitle, play button
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment: CrossAxisAlignment.end,
-                                      children: [
-                                        Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            const Text(
-                                              'Liked Songs',
-                                              style: TextStyle(
-                                                fontSize: 26,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              '${_favorites.length} tracks in your vault',
-                                              style: TextStyle(
-                                                fontSize: 13,
-                                                color: Colors.white.withOpacity(0.6),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        // Play button
-                                        Container(
-                                          width: 48,
-                                          height: 48,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            gradient: const LinearGradient(
-                                              colors: [Color(0xFFCE93D8), Color(0xFFAB47BC)],
-                                            ),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: const Color(0xFFAB47BC).withOpacity(0.5),
-                                                blurRadius: 12,
-                                                offset: const Offset(0, 4),
-                                              ),
-                                            ],
-                                          ),
-                                          child: const Icon(
-                                            Icons.play_arrow,
-                                            color: Colors.white,
-                                            size: 28,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 28),
-
-                  // --- Recently Played Header ---
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.tune,
-                          color: Colors.white.withOpacity(0.7),
-                          size: 18,
-                        ),
-                        const SizedBox(width: 8),
-                        const Text(
-                          'Recently Played',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  // --- Playlist Items ---
-                  ...recentPlaylists.map((playlist) {
-                    return _buildLibraryPlaylistItem(
-                      title: playlist['title'] as String,
-                      subtitle: playlist['subtitle'] as String,
-                      gradientColors: playlist['gradient'] as List<Color>,
-                      icon: playlist['icon'] as IconData,
-                    );
-                  }),
-
-                  // --- User Created Playlists ---
-                  ..._userPlaylists.map(
-                    (playlist) => _buildLibraryPlaylistItem(
-                      title: playlist.name,
-                      subtitle: 'Playlist • ${playlist.trackTitles.length} tracks',
-                      gradientColors: [playlist.color, playlist.color.withOpacity(0.7)],
-                      icon: playlist.icon,
-                      onTap: () => _showPlaylistDetail(playlist),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            child: _selectedLibraryTab == 'Playlists'
+                ? _buildPlaylistsTabContent(recentPlaylists)
+                : _selectedLibraryTab == 'Artists'
+                    ? _buildArtistsTabContent()
+                    : _buildAlbumsTabContent(),
           ),
         ],
       ),
@@ -2448,6 +2334,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
     required List<Color> gradientColors,
     required IconData icon,
     VoidCallback? onTap,
+    VoidCallback? onMoreTap,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
@@ -2514,12 +2401,674 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                     color: Colors.white.withOpacity(0.4),
                     size: 20,
                   ),
-                  onPressed: () {},
+                  onPressed: onMoreTap,
                 ),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  // =======================================================
+  // LIBRARY TAB METHODS
+  // =======================================================
+
+  // --- Playlists Tab Content ---
+  Widget _buildPlaylistsTabContent(List<Map<String, dynamic>> recentPlaylists) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.only(bottom: 100),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // --- Liked Songs Card ---
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: GestureDetector(
+              onTap: _showLikedSongsDetail,
+              child: Container(
+                width: double.infinity,
+                height: 180,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color(0xFF1A0030), Color(0xFF2D004F), Color(0xFF1A0030)],
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF7B1FA2).withOpacity(0.3),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Stack(
+                    children: [
+                      Positioned.fill(child: CustomPaint(painter: _LibraryWaveformPainter())),
+                      Positioned.fill(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [Colors.transparent, const Color(0xFF1A0030).withOpacity(0.7)],
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(Icons.favorite, color: Color(0xFFCE93D8), size: 18),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  'COLLECTION',
+                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFFCE93D8), letterSpacing: 1.5),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text('Liked Songs', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white)),
+                                    const SizedBox(height: 4),
+                                    Text('${_favorites.length} tracks in your vault', style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.6))),
+                                  ],
+                                ),
+                                // Play button - fungsional
+                                GestureDetector(
+                                  onTap: () {
+                                    if (_favApiTracks.isNotEmpty) {
+                                      _playOrPause(_favApiTracks.first);
+                                    } else if (_favoriteTracks.isNotEmpty) {
+                                      final t = _favoriteTracks.first;
+                                      _playTrack(t['title'] as String, t['url'] as String);
+                                    } else {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Tambahkan lagu favorit terlebih dahulu ♥')),
+                                      );
+                                    }
+                                  },
+                                  child: Container(
+                                    width: 48,
+                                    height: 48,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      gradient: const LinearGradient(colors: [Color(0xFFCE93D8), Color(0xFFAB47BC)]),
+                                      boxShadow: [
+                                        BoxShadow(color: const Color(0xFFAB47BC).withOpacity(0.5), blurRadius: 12, offset: const Offset(0, 4)),
+                                      ],
+                                    ),
+                                    child: const Icon(Icons.play_arrow, color: Colors.white, size: 28),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 28),
+
+          // --- Recently Played Header ---
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              children: [
+                Icon(Icons.tune, color: Colors.white.withOpacity(0.7), size: 18),
+                const SizedBox(width: 8),
+                const Text('Recently Played', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // --- Recent Playlists ---
+          ...recentPlaylists.map((pl) => _buildLibraryPlaylistItem(
+            title: pl['title'] as String,
+            subtitle: pl['subtitle'] as String,
+            gradientColors: pl['gradient'] as List<Color>,
+            icon: pl['icon'] as IconData,
+            onMoreTap: () => _showLibraryItemOptions(pl['title'] as String, isUserPlaylist: false),
+          )),
+
+          // --- User Created Playlists ---
+          ..._userPlaylists.map((playlist) => _buildLibraryPlaylistItem(
+            title: playlist.name,
+            subtitle: 'Playlist • ${playlist.trackTitles.length} tracks',
+            gradientColors: [playlist.color, playlist.color.withOpacity(0.7)],
+            icon: playlist.icon,
+            onTap: () => _showPlaylistDetail(playlist),
+            onMoreTap: () => _showLibraryItemOptions(playlist.name, isUserPlaylist: true, playlist: playlist),
+          )),
+        ],
+      ),
+    );
+  }
+
+  // --- Artists Tab Content ---
+  Widget _buildArtistsTabContent() {
+    // Kelompokkan tracks yang diikuti berdasarkan nama artis
+    final Map<String, List<MusicTrack>> artistMap = {};
+    for (final track in _followedApiTracks) {
+      artistMap.putIfAbsent(track.artist, () => []).add(track);
+    }
+
+    if (artistMap.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 90,
+              height: 90,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withOpacity(0.04),
+                border: Border.all(color: Colors.white12),
+              ),
+              child: const Icon(Icons.person_outline, color: Colors.white24, size: 44),
+            ),
+            const SizedBox(height: 20),
+            const Text('Belum ada artis yang diikuti', style: TextStyle(color: Colors.white54, fontSize: 16, fontWeight: FontWeight.w500)),
+            const SizedBox(height: 8),
+            const Text('Ikuti artis melalui halaman Search', style: TextStyle(color: Colors.white30, fontSize: 13)),
+          ],
+        ),
+      );
+    }
+
+    final artists = artistMap.entries.toList();
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(0, 8, 0, 100),
+      itemCount: artists.length,
+      itemBuilder: (context, index) {
+        final entry = artists[index];
+        final artistName = entry.key;
+        final tracks = entry.value;
+        final color = tracks.first.color;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => _showArtistDetail(artistName, tracks),
+              borderRadius: BorderRadius.circular(12),
+              splashColor: Colors.white10,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(colors: [color, color.withOpacity(0.5)]),
+                        boxShadow: [BoxShadow(color: color.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 3))],
+                      ),
+                      child: tracks.first.imageUrl.isNotEmpty
+                          ? ClipOval(child: Image.network(tracks.first.imageUrl, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Icon(Icons.person, color: Colors.white.withOpacity(0.8), size: 26)))
+                          : Icon(Icons.person, color: Colors.white.withOpacity(0.8), size: 26),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(artistName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: Colors.white)),
+                          const SizedBox(height: 3),
+                          Text('${tracks.length} lagu • Diikuti', style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.5))),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF7B1FA2).withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFF7B1FA2).withOpacity(0.5)),
+                      ),
+                      child: const Text('Diikuti', style: TextStyle(color: Color(0xFFCE93D8), fontSize: 12, fontWeight: FontWeight.w600)),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // --- Albums Tab Content ---
+  Widget _buildAlbumsTabContent() {
+    final List<Map<String, dynamic>> albums = [
+      {'title': 'Justice', 'artist': 'Justin Bieber', 'year': '2021', 'color': const Color(0xFF1A237E), 'icon': Icons.album, 'gradient': <Color>[const Color(0xFF1A237E), const Color(0xFF283593)], 'tracks': <String>['GHOST', 'SORRY', 'I DONT CARE']},
+      {'title': 'After Hours', 'artist': 'The Weeknd', 'year': '2020', 'color': const Color(0xFF8E2DE2), 'icon': Icons.nightlight_round, 'gradient': <Color>[const Color(0xFF8E2DE2), const Color(0xFF4A00E0)], 'tracks': <String>['After Hours', 'Currents']},
+      {'title': 'Currents', 'artist': 'Tame Impala', 'year': '2015', 'color': const Color(0xFF2C3E50), 'icon': Icons.waves, 'gradient': <Color>[const Color(0xFF2C3E50), const Color(0xFF3498DB)], 'tracks': <String>['Currents']},
+      {'title': 'Synthwave Collection', 'artist': 'Neon Horizon', 'year': '2023', 'color': const Color(0xFF4A148C), 'icon': Icons.equalizer, 'gradient': <Color>[const Color(0xFF4A148C), const Color(0xFF7B1FA2)], 'tracks': <String>['Synthwave Eclipse', 'Experimental Void']},
+      {'title': 'Jazz Classics', 'artist': 'Jazz Classics', 'year': '2022', 'color': const Color(0xFFE65100), 'icon': Icons.mic, 'gradient': <Color>[const Color(0xFFE65100), const Color(0xFFFF6D00)], 'tracks': <String>['Late Night Jazz']},
+      {'title': 'IDM & Ambient', 'artist': 'IDM & Ambient', 'year': '2021', 'color': const Color(0xFF6A1B9A), 'icon': Icons.graphic_eq, 'gradient': <Color>[const Color(0xFF6A1B9A), const Color(0xFFAB47BC)], 'tracks': <String>['Experimental Void']},
+    ];
+
+    return GridView.builder(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 14,
+        mainAxisSpacing: 14,
+        childAspectRatio: 0.82,
+      ),
+      itemCount: albums.length,
+      itemBuilder: (context, index) {
+        final album = albums[index];
+        return GestureDetector(
+          onTap: () => _showAlbumDetail(album),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: album['gradient'] as List<Color>,
+              ),
+              boxShadow: [
+                BoxShadow(color: (album['color'] as Color).withOpacity(0.35), blurRadius: 14, offset: const Offset(0, 6)),
+              ],
+            ),
+            child: Stack(
+              children: [
+                Positioned(
+                  right: -8, top: -8,
+                  child: Icon(album['icon'] as IconData, size: 90, color: Colors.white.withOpacity(0.07)),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(album['title'] as String, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white), maxLines: 2, overflow: TextOverflow.ellipsis),
+                      const SizedBox(height: 4),
+                      Text(album['artist'] as String, style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.7)), maxLines: 1, overflow: TextOverflow.ellipsis),
+                      const SizedBox(height: 2),
+                      Text(album['year'] as String, style: TextStyle(fontSize: 11, color: Colors.white.withOpacity(0.5))),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // --- Show Liked Songs Detail ---
+  void _showLikedSongsDetail() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setSheetState) => Container(
+          height: MediaQuery.of(context).size.height * 0.85,
+          decoration: const BoxDecoration(
+            color: Color(0xFF0D001A),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+          ),
+          child: Column(
+            children: [
+              const SizedBox(height: 12),
+              Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(10))),
+              Container(
+                padding: const EdgeInsets.all(24),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 80, height: 80,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        gradient: const LinearGradient(colors: [Color(0xFF7B1FA2), Color(0xFFAB47BC)]),
+                        boxShadow: [BoxShadow(color: const Color(0xFF7B1FA2).withOpacity(0.5), blurRadius: 16, offset: const Offset(0, 6))],
+                      ),
+                      child: const Icon(Icons.favorite, color: Colors.white, size: 40),
+                    ),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Liked Songs', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+                          const SizedBox(height: 4),
+                          Text('${_favorites.length} lagu • Koleksimu', style: const TextStyle(color: Colors.white54)),
+                          if (_favorites.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 10),
+                              child: ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF7B1FA2),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                ),
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  if (_favApiTracks.isNotEmpty) {
+                                    _playOrPause(_favApiTracks.first);
+                                  } else if (_favoriteTracks.isNotEmpty) {
+                                    final t = _favoriteTracks.first;
+                                    _playTrack(t['title'] as String, t['url'] as String);
+                                  }
+                                },
+                                icon: const Icon(Icons.play_arrow, size: 18, color: Colors.white),
+                                label: const Text('Putar Semua', style: TextStyle(color: Colors.white, fontSize: 13)),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(color: Colors.white10, height: 1),
+              Expanded(
+                child: (_favApiTracks.isEmpty && _favoriteTracks.isEmpty)
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 80, height: 80,
+                              decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white.withOpacity(0.04)),
+                              child: const Icon(Icons.favorite_border, color: Colors.white24, size: 40),
+                            ),
+                            const SizedBox(height: 16),
+                            const Text('Belum ada lagu favorit', style: TextStyle(color: Colors.white38, fontSize: 16)),
+                            const SizedBox(height: 8),
+                            const Text('Tekan ♥ pada lagu untuk menyimpannya di sini', style: TextStyle(color: Colors.white24, fontSize: 13), textAlign: TextAlign.center),
+                          ],
+                        ),
+                      )
+                    : ListView(
+                        padding: const EdgeInsets.all(16),
+                        children: [
+                          ..._favApiTracks.map((track) => _buildTrackItemFromApi(track)),
+                          ..._favoriteTracks.map((t) => _buildTrackItem(t['title'] as String, t['subtitle'] as String, t['icon'] as IconData, t['color'] as Color)),
+                        ],
+                      ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // --- Show Artist Detail ---
+  void _showArtistDetail(String artistName, List<MusicTrack> tracks) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        final color = tracks.first.color;
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.85,
+          decoration: const BoxDecoration(
+            color: Color(0xFF0A0A14),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+          ),
+          child: Column(
+            children: [
+              const SizedBox(height: 12),
+              Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(10))),
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [color.withOpacity(0.15), Colors.transparent],
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 80, height: 80,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(colors: [color, color.withOpacity(0.5)]),
+                        boxShadow: [BoxShadow(color: color.withOpacity(0.4), blurRadius: 16, offset: const Offset(0, 6))],
+                      ),
+                      child: tracks.first.imageUrl.isNotEmpty
+                          ? ClipOval(child: Image.network(tracks.first.imageUrl, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const Icon(Icons.person, color: Colors.white, size: 40)))
+                          : const Icon(Icons.person, color: Colors.white, size: 40),
+                    ),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(artistName, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+                          const SizedBox(height: 4),
+                          Text('${tracks.length} lagu • Diikuti', style: const TextStyle(color: Colors.white54)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(color: Colors.white10, height: 1),
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: tracks.length,
+                  itemBuilder: (context, i) => _buildTrackItemFromApi(tracks[i]),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // --- Show Album Detail ---
+  void _showAlbumDetail(Map<String, dynamic> album) {
+    final trackTitles = (album['tracks'] as List).cast<String>();
+    final tracks = _allTracks.where((t) => trackTitles.contains(t['title'])).toList();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.85,
+        decoration: const BoxDecoration(
+          color: Color(0xFF0A0A14),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+        ),
+        child: Column(
+          children: [
+            const SizedBox(height: 12),
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(10))),
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: album['gradient'] as List<Color>,
+                ),
+              ),
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+              child: Row(
+                children: [
+                  Container(
+                    width: 80, height: 80,
+                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), color: Colors.black26),
+                    child: Icon(album['icon'] as IconData, color: Colors.white, size: 40),
+                  ),
+                  const SizedBox(width: 20),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(album['title'] as String, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+                        const SizedBox(height: 4),
+                        Text('${album['artist']} • ${album['year']}', style: const TextStyle(color: Colors.white70, fontSize: 14)),
+                        Text('${tracks.length} lagu', style: const TextStyle(color: Colors.white54, fontSize: 13)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(color: Colors.white10, height: 1),
+            Expanded(
+              child: tracks.isEmpty
+                  ? const Center(child: Text('Tidak ada lagu tersedia', style: TextStyle(color: Colors.white38)))
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: tracks.length,
+                      itemBuilder: (context, i) => _buildTrackItem(
+                        tracks[i]['title'] as String,
+                        tracks[i]['subtitle'] as String,
+                        tracks[i]['icon'] as IconData,
+                        tracks[i]['color'] as Color,
+                      ),
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // --- Library Item More Options ---
+  void _showLibraryItemOptions(String title, {bool isUserPlaylist = false, Playlist? playlist}) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: kColorSurface,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 12),
+          Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(10))),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white)),
+          ),
+          const Divider(color: Colors.white10),
+          ListTile(
+            leading: const Icon(Icons.play_circle_outline, color: Color(0xFFAB47BC)),
+            title: const Text('Putar Sekarang'),
+            onTap: () => Navigator.pop(context),
+          ),
+          ListTile(
+            leading: const Icon(Icons.queue_music, color: Colors.white70),
+            title: const Text('Tambah ke Antrian'),
+            onTap: () => Navigator.pop(context),
+          ),
+          ListTile(
+            leading: const Icon(Icons.share_outlined, color: Colors.white70),
+            title: const Text('Bagikan Playlist'),
+            onTap: () => Navigator.pop(context),
+          ),
+          if (isUserPlaylist && playlist != null) ...[
+            ListTile(
+              leading: const Icon(Icons.edit_outlined, color: Colors.white70),
+              title: const Text('Ubah Nama Playlist'),
+              onTap: () {
+                Navigator.pop(context);
+                _showRenamePlaylistDialog(playlist);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete_outline, color: Colors.redAccent),
+              title: const Text('Hapus Playlist', style: TextStyle(color: Colors.redAccent)),
+              onTap: () {
+                Navigator.pop(context);
+                setState(() => _userPlaylists.remove(playlist));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('"$title" dihapus dari library')),
+                );
+              },
+            ),
+          ],
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
+  // --- Rename Playlist Dialog ---
+  void _showRenamePlaylistDialog(Playlist playlist) {
+    final ctrl = TextEditingController(text: playlist.name);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: kColorSurface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Ubah Nama Playlist'),
+        content: TextField(
+          controller: ctrl,
+          autofocus: true,
+          style: const TextStyle(color: Colors.white),
+          decoration: const InputDecoration(
+            hintText: 'Nama baru...',
+            hintStyle: TextStyle(color: Colors.white24),
+            enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
+            focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: kColorAccent)),
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal', style: TextStyle(color: Colors.white54))),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: kColorAccent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+            onPressed: () {
+              if (ctrl.text.trim().isNotEmpty) {
+                final idx = _userPlaylists.indexOf(playlist);
+                if (idx != -1) {
+                  setState(() {
+                    _userPlaylists[idx] = Playlist(
+                      name: ctrl.text.trim(),
+                      trackTitles: playlist.trackTitles,
+                      color: playlist.color,
+                      icon: playlist.icon,
+                    );
+                  });
+                }
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Nama playlist berhasil diubah!')),
+                );
+              }
+            },
+            child: const Text('Simpan', style: TextStyle(color: Colors.white)),
+          ),
+        ],
       ),
     );
   }
@@ -2924,27 +3473,123 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
   // ==========================================
   // Player Logic & UI
   // ==========================================
+  MusicTrack? get _currentlyPlayingTrack {
+    if (_currentApiTrack != null) {
+      return _currentApiTrack;
+    }
+    if (_currentPlayingTitle != null) {
+      try {
+        final track = _allTracks.firstWhere((t) => t['title'] == _currentPlayingTitle);
+        return MusicTrack(
+          id: track['title'] as String,
+          title: track['title'] as String,
+          artist: (track['subtitle'] as String).replaceAll('Artis ', ''),
+          audioUrl: track['url'] as String,
+          imageUrl: '',
+          color: track['color'] as Color? ?? kColorAccent,
+          icon: track['icon'] as IconData? ?? Icons.music_note,
+        );
+      } catch (e) {
+        // Not found in static tracks
+        return MusicTrack(
+          id: _currentPlayingTitle!,
+          title: _currentPlayingTitle!,
+          artist: 'Unknown Artist',
+          audioUrl: '',
+          imageUrl: '',
+        );
+      }
+    }
+    return null;
+  }
+
+  void _handlePlayerError(dynamic e) {
+    if (!mounted) return;
+    final errorStr = e.toString().toLowerCase();
+    if (errorStr.contains('abort') || 
+        errorStr.contains('pause') || 
+        errorStr.contains('interrupt')) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Gagal memutar audio: $e')),
+    );
+  }
+
   void _playTrack(String title, String url) async {
     if (_currentPlayingTitle == title) {
-      if (_isPlaying) {
-        await _audioPlayer.pause();
-      } else {
-        await _audioPlayer.resume();
+      try {
+        if (_isPlaying) {
+          await _audioPlayer.pause();
+        } else {
+          await _audioPlayer.resume();
+        }
+      } catch (e) {
+        _handlePlayerError(e);
       }
     } else {
-      await _audioPlayer.stop();
-      await _audioPlayer.play(UrlSource(url));
       setState(() {
         _currentPlayingTitle = title;
         _currentApiTrack = null;
         _showPlayerUi = true;
       });
+      try {
+        if (url.startsWith('http')) {
+          await _audioPlayer.play(UrlSource(url));
+        } else {
+          await _audioPlayer.play(AssetSource(url));
+        }
+        final trackToSave = _currentlyPlayingTrack;
+        if (trackToSave != null) {
+          await _localService.addRecent(trackToSave);
+          _loadRecentTracks();
+        }
+      } catch (e) {
+        _handlePlayerError(e);
+      }
+    }
+  }
+
+  Future<void> _playOrPause(MusicTrack track) async {
+    if (_currentApiTrack?.id == track.id) {
+      try {
+        if (_isPlaying) {
+          await _audioPlayer.pause();
+          setState(() => _isPlaying = false);
+        } else {
+          await _audioPlayer.resume();
+          setState(() => _isPlaying = true);
+        }
+      } catch (e) {
+        _handlePlayerError(e);
+      }
+    } else {
+      setState(() {
+        _currentApiTrack = track;
+        _currentPlayingTitle = track.title;
+        _isPlaying = true;
+        _showPlayerUi = true;
+      });
+      try {
+        if (track.audioUrl.startsWith('http')) {
+          await _audioPlayer.play(UrlSource(track.audioUrl));
+        } else {
+          await _audioPlayer.play(AssetSource(track.audioUrl));
+        }
+        await _localService.addRecent(track);
+        _loadRecentTracks();
+      } catch (e) {
+        _handlePlayerError(e);
+      }
     }
   }
 
   Widget _buildMiniPlayer() {
-    final String displayTitle = _currentPlayingTitle ?? 'Midnight City';
-    final String displaySubtitle = _currentApiTrack?.artist ?? 'M83';
+    final track = _currentlyPlayingTrack;
+    if (track == null) return const SizedBox.shrink();
+
+    final String displayTitle = track.title;
+    final String displayArtist = track.artist;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -2952,12 +3597,12 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
         color: const Color(0xFF1A0030),
         borderRadius: BorderRadius.circular(40),
         border: Border.all(
-          color: const Color(0xFF7B1FA2).withOpacity(0.3),
+          color: track.color.withOpacity(0.3),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF7B1FA2).withOpacity(0.15),
+            color: track.color.withOpacity(0.15),
             blurRadius: 15,
             offset: const Offset(0, -3),
           ),
@@ -2971,28 +3616,38 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
             child: Row(
               children: [
                 // Album art circle
-                Container(
-                  width: 42,
-                  height: 42,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [Color(0xFF4A148C), Color(0xFF7B1FA2)],
-                    ),
-                    border: Border.all(
-                      color: const Color(0xFFCE93D8).withOpacity(0.3),
-                      width: 1.5,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF7B1FA2).withOpacity(0.4),
-                        blurRadius: 8,
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => LyricsScreen(track: track),
                       ),
-                    ],
+                    );
+                  },
+                  child: Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [track.color, track.color.withOpacity(0.5)],
+                      ),
+                      border: Border.all(
+                        color: track.color.withOpacity(0.3),
+                        width: 1.5,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: track.color.withOpacity(0.4),
+                          blurRadius: 8,
+                        ),
+                      ],
+                    ),
+                    child: Icon(track.icon, color: Colors.white, size: 20),
                   ),
-                  child: const Icon(Icons.music_note, color: Color(0xFFCE93D8), size: 20),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -3009,9 +3664,9 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                        displaySubtitle,
-                        style: const TextStyle(
-                          color: Color(0xFFCE93D8),
+                        displayArtist,
+                        style: TextStyle(
+                          color: track.color.withOpacity(0.8),
                           fontSize: 12,
                         ),
                       ),
@@ -3025,11 +3680,15 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                     size: 28,
                   ),
                   color: Colors.white,
-                  onPressed: () {
-                    if (_isPlaying) {
-                      _audioPlayer.pause();
-                    } else {
-                      _audioPlayer.resume();
+                  onPressed: () async {
+                    try {
+                      if (_isPlaying) {
+                        await _audioPlayer.pause();
+                      } else {
+                        await _audioPlayer.resume();
+                      }
+                    } catch (e) {
+                      _handlePlayerError(e);
                     }
                   },
                 ),
@@ -3041,6 +3700,16 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Mencari perangkat untuk cast...')),
                     );
+                  },
+                ),
+                // Close button
+                IconButton(
+                  icon: const Icon(Icons.close, size: 24),
+                  color: Colors.white70,
+                  onPressed: () {
+                    setState(() {
+                      _showPlayerUi = false;
+                    });
                   },
                 ),
               ],
