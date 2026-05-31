@@ -14,7 +14,7 @@ class MusicApiService {
   Future<List<MusicTrack>> fetchTracks(String searchTerm) async {
     try {
       final encodedTerm = Uri.encodeComponent(searchTerm);
-      final url = Uri.parse('$_baseUrl?term=$encodedTerm&media=music&limit=15');
+      final url = Uri.parse('$_baseUrl?term=$encodedTerm&media=music&limit=30');
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
