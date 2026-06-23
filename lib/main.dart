@@ -466,27 +466,6 @@ class MobileLandingLayout extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 30),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                'Sudah punya akun? ',
-                style: TextStyle(color: Colors.white70, fontSize: 15),
-              ),
-              GestureDetector(
-                onTap: onStarted, // Navigate on tap
-                child: const Text(
-                  'Masuk',
-                  style: TextStyle(
-                    color: Color(0xFFE0B0FF),
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );
@@ -1751,37 +1730,10 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
             end: Alignment.bottomRight,
             colors: [kColorAccentCyan, kColorAccent], // Biru ke Hijau
           ),
-        ),
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            const Text(
-              'Podcast Inspiratif',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            const Text(
-              'Ngobrol santai penuh makna',
-              style: TextStyle(color: Colors.white),
-            ),
-            const Spacer(),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.play_arrow, color: kColorAccentCyan),
-              ),
-            ),
-          ],
+          image: const DecorationImage(
+            image: AssetImage('assets/images/featured_podcast.jpg'),
+            fit: BoxFit.cover,
+          ),
         ),
       );
     } else if (_selectedCategory == 'Musik') {
@@ -1795,37 +1747,10 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
             end: Alignment.bottomRight,
             colors: [kColorAccentCyan, kColorAccent], // Pink ke Ungu
           ),
-        ),
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            const Text(
-              'Musik Favorit',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            const Text(
-              'Artis yang Anda ikuti',
-              style: TextStyle(color: Colors.white),
-            ),
-            const Spacer(),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.play_arrow, color: kColorAccent),
-              ),
-            ),
-          ],
+          image: const DecorationImage(
+            image: AssetImage('assets/images/featured_musik.jpg'),
+            fit: BoxFit.cover,
+          ),
         ),
       );
     } else {
@@ -1840,37 +1765,10 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
             end: Alignment.bottomRight,
             colors: [kColorAccent, kColorAccentPurple], // Pink ke Ungu
           ),
-        ),
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            const Text(
-              'Pop Terkini',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            const Text(
-              'Lagu pop paling hits hari ini',
-              style: TextStyle(color: Colors.white),
-            ),
-            const Spacer(),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.play_arrow, color: kColorAccent),
-              ),
-            ),
-          ],
+          image: const DecorationImage(
+            image: AssetImage('assets/images/featured_pop.jpg'),
+            fit: BoxFit.cover,
+          ),
         ),
       );
     }
