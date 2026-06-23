@@ -5065,8 +5065,7 @@ class _SettingsPageState extends State<SettingsPage> {
   bool _notificationsEnabled = true;
   bool _dataSaverEnabled = false;
   String _audioQuality = 'Tinggi';
-  String _userName = 'Divaa';
-  String _userEmail = 'divaa@example.com';
+  String _userName = '';
   SharedPreferences? _prefs;
 
   @override
@@ -5081,8 +5080,7 @@ class _SettingsPageState extends State<SettingsPage> {
       _notificationsEnabled = _prefs?.getBool('notificationsEnabled') ?? true;
       _dataSaverEnabled = _prefs?.getBool('dataSaverEnabled') ?? false;
       _audioQuality = _prefs?.getString('audioQuality') ?? 'Tinggi';
-      _userName = _prefs?.getString('local_username') ?? 'Divaa';
-      _userEmail = _prefs?.getString('local_email') ?? 'divaa@example.com';
+      _userName = _prefs?.getString('local_username') ?? '';
     });
   }
 
@@ -5092,12 +5090,6 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _saveString(String key, String value) async {
     await _prefs?.setString(key, value);
-  }
-
-  bool _isValidEmail(String email) {
-    final emailRegex = RegExp(
-      r"^[a-zA-Z0-9.!#%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$");
-    return emailRegex.hasMatch(email);
   }
 
   @override
@@ -5111,7 +5103,7 @@ class _SettingsPageState extends State<SettingsPage> {
             leading: const Icon(Icons.person_outline, color: Colors.white70),
             title: const Text('Profil'),
             subtitle: Text(
-              '$_userName, $_userEmail',
+              _userName.isEmpty ? '(Belum diatur)' : _userName,
               style: const TextStyle(color: Colors.white54),
             ),
             trailing: const Icon(Icons.chevron_right, color: Colors.white54),
@@ -5277,7 +5269,6 @@ class _SettingsPageState extends State<SettingsPage> {
 
   void _showEditProfileDialog() {
     final nameController = TextEditingController(text: _userName);
-    final emailController = TextEditingController(text: _userEmail);
 
     showDialog(
       context: context,
@@ -5293,6 +5284,8 @@ class _SettingsPageState extends State<SettingsPage> {
               style: const TextStyle(color: Colors.white),
               decoration: const InputDecoration(
                 labelText: 'Nama',
+                hintText: 'Masukkan nama profil Anda',
+                hintStyle: TextStyle(color: Colors.white30),
                 labelStyle: TextStyle(color: Color.fromARGB(255, 255, 60, 255)),
                 enabledBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.white24),
@@ -5302,23 +5295,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: emailController,
-              keyboardType: TextInputType.emailAddress,
-              autocorrect: false,
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                labelStyle: TextStyle(color: kColorAccent),
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white24),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: kColorAccent),
-                ),
-              ),
-            ),
+            const SizedBox(height: 8),
           ],
         ),
         actions: [
@@ -5335,36 +5312,10 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             onPressed: () async {
               final newName = nameController.text.trim();
-              final newEmail = emailController.text.trim();
 
-              if (newEmail.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Email tidak boleh kosong.'),
-                    backgroundColor: Colors.redAccent,
-                  ),
-                );
-                return;
-              }
-
-              if (!_isValidEmail(newEmail)) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Format email tidak valid.'),
-                    backgroundColor: Colors.redAccent,
-                  ),
-                );
-                return;
-              }
-
-              await _saveString(
-                'local_username',
-                newName.isEmpty ? 'Pengguna' : newName,
-              );
-              await _saveString('local_email', newEmail);
+              await _saveString('local_username', newName);
               setState(() {
-                _userName = newName.isEmpty ? 'Pengguna' : newName;
-                _userEmail = newEmail;
+                _userName = newName;
               });
               if (mounted) Navigator.pop(context);
               if (mounted) {

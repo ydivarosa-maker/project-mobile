@@ -4,11 +4,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Menyimpan nama pengguna secara lokal di SharedPreferences.
 class AuthService {
   static const String _userNameKey = 'local_username';
-  static const String _emailKey = 'local_email';
   static const String _isLoggedInKey = 'local_is_logged_in';
 
   String? _displayName;
-  String? _email;
   bool _loggedIn = false;
 
   AuthService() {
@@ -18,7 +16,6 @@ class AuthService {
   Future<void> _loadFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
     _displayName = prefs.getString(_userNameKey);
-    _email = prefs.getString(_emailKey);
     _loggedIn = prefs.getBool(_isLoggedInKey) ?? false;
   }
 
@@ -28,27 +25,20 @@ class AuthService {
 
   Future<void> updateDisplayName(String name) async {
     final prefs = await SharedPreferences.getInstance();
-    _displayName = name.trim().isEmpty ? 'Pengguna' : name.trim();
-    await prefs.setString(_userNameKey, _displayName!);
-  }
-
-  Future<void> updateEmail(String email) async {
-    final prefs = await SharedPreferences.getInstance();
-    _email = email.trim();
-    await prefs.setString(_emailKey, _email!);
+    _displayName = name.trim();
+    await prefs.setString(_userNameKey, _displayName ?? '');
   }
 
   // Getter kompatibel dengan kode lama
   String? get currentUserDisplayName => _displayName;
-  String? get currentUserEmail => _email;
   bool get isLoggedIn => _loggedIn;
 
   /// Login lokal dengan nama pengguna
   Future<void> signInWithName(String name) async {
     final prefs = await SharedPreferences.getInstance();
-    _displayName = name.trim().isEmpty ? 'Pengguna' : name.trim();
+    _displayName = name.trim();
     _loggedIn = true;
-    await prefs.setString(_userNameKey, _displayName!);
+    await prefs.setString(_userNameKey, _displayName ?? '');
     await prefs.setBool(_isLoggedInKey, true);
   }
 

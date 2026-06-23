@@ -6,12 +6,12 @@ class ApiAuthService {
   // Ganti alamat ini jika menggunakan perangkat fisik atau server berbeda
   final String baseUrl = 'http://10.0.2.2:3000/api';
 
-  Future<Map<String, dynamic>> login(String email, String password) async {
+  Future<Map<String, dynamic>> login(String username, String password) async {
     try {
       final resp = await http.post(
         Uri.parse('$baseUrl/login'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email, 'password': password}),
+        body: jsonEncode({'username': username, 'password': password}),
       );
 
       if (resp.statusCode == 200) {

@@ -9,25 +9,25 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final ApiAuthService _auth = ApiAuthService();
   bool _loading = false;
 
   void _handleLogin() async {
     setState(() => _loading = true);
-    final email = _emailController.text.trim();
+    final username = _usernameController.text.trim();
     final password = _passwordController.text;
 
-    if (email.isEmpty || password.isEmpty) {
+    if (username.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Email dan password wajib diisi')),
+        const SnackBar(content: Text('Nama pengguna dan password wajib diisi')),
       );
       setState(() => _loading = false);
       return;
     }
 
-    final res = await _auth.login(email, password);
+    final res = await _auth.login(username, password);
     setState(() => _loading = false);
 
     if (res['success'] == true) {
@@ -49,9 +49,8 @@ class _LoginPageState extends State<LoginPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
-              controller: _emailController,
-              keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(labelText: 'Email'),
+              controller: _usernameController,
+              decoration: const InputDecoration(labelText: 'Nama Pengguna'),
             ),
             const SizedBox(height: 12),
             TextField(

@@ -20,12 +20,20 @@ const users = [];
 })();
 
 app.post("/api/login", async (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password)
-    return res.status(400).json({ message: "Email and password required" });
+  // Accept either `username` or `email` in the request body for compatibility
+  const { username, email, password } = req.body;
+  const identifier = username || email;
+  if (!identifier || !password)
+    return res
+      .status(400)
+      .json({ message: "Nama pengguna/email dan password diperlukan" });
 
-  const user = users.find((u) => u.email === email);
-  if (!user) return res.status(401).json({ message: "Email tidak terdaftar" });
+  const user = users.find(
+    (u) =>
+      u.email === identifier ||
+      u.name.toLowerCase() === String(identifier).toLowerCase(),
+  );
+  if (!user) return res.status(401).json({ message: "Akun tidak terdaftar" });
 
   const match = await bcrypt.compare(password, user.password);
   if (!match) return res.status(401).json({ message: "Password salah" });
