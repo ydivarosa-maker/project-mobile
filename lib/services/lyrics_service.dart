@@ -32,6 +32,7 @@ class LyricsService {
     } catch (e) {
       throw Exception('Koneksi bermasalah saat mengambil lirik: $e');
     }
+    return null;
   }
 
   /// Alternatif: Mengambil lirik dengan mencoba format berbeda

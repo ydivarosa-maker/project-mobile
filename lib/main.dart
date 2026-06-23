@@ -4,16 +4,13 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'models/music_track.dart';
 import 'services/music_api_service.dart';
 import 'services/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'services/local_storage_service.dart';
 import 'services/playlist_service.dart';
-import 'screens/login_screen.dart';
 import 'screens/lyrics_screen.dart';
-import 'screens/settings_screen.dart';
 
 const Color kColorBackground = Color(0xFF000000);
 const Color kColorSurface = Color(0xFF090009);
@@ -47,14 +44,50 @@ class VisualizerPainter extends CustomPainter {
     final barPaint = Paint()
       ..color = Colors.white.withOpacity(0.06)
       ..style = PaintingStyle.fill;
-      
+
     final int numBars = 40;
     final double barWidth = size.width / numBars;
     final List<double> heights = [
-      0.2, 0.4, 0.3, 0.6, 0.5, 0.8, 0.7, 0.9, 0.5, 0.3,
-      0.6, 0.8, 0.4, 0.5, 0.7, 0.9, 0.8, 0.6, 0.4, 0.2,
-      0.3, 0.5, 0.4, 0.7, 0.6, 0.9, 0.8, 0.5, 0.4, 0.6,
-      0.8, 0.5, 0.3, 0.7, 0.6, 0.4, 0.3, 0.5, 0.2, 0.1,
+      0.2,
+      0.4,
+      0.3,
+      0.6,
+      0.5,
+      0.8,
+      0.7,
+      0.9,
+      0.5,
+      0.3,
+      0.6,
+      0.8,
+      0.4,
+      0.5,
+      0.7,
+      0.9,
+      0.8,
+      0.6,
+      0.4,
+      0.2,
+      0.3,
+      0.5,
+      0.4,
+      0.7,
+      0.6,
+      0.9,
+      0.8,
+      0.5,
+      0.4,
+      0.6,
+      0.8,
+      0.5,
+      0.3,
+      0.7,
+      0.6,
+      0.4,
+      0.3,
+      0.5,
+      0.2,
+      0.1,
     ];
 
     for (int i = 0; i < numBars; i++) {
@@ -80,9 +113,7 @@ class VisualizerBackground extends StatelessWidget {
       color: const Color(0xFF1E1E22),
       child: Stack(
         children: [
-          Positioned.fill(
-            child: CustomPaint(painter: VisualizerPainter()),
-          ),
+          Positioned.fill(child: CustomPaint(painter: VisualizerPainter())),
           child,
         ],
       ),
@@ -123,7 +154,6 @@ class AdaptiveLogo extends StatelessWidget {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter();
   await PlaylistService.init();
   runApp(const MelodyaApp());
 }
@@ -152,7 +182,10 @@ class Playlist {
     name: m['name'] as String? ?? 'Playlist',
     trackTitles: List<String>.from(m['trackTitles'] as List? ?? []),
     color: Color(m['colorValue'] as int? ?? kColorAccent.value),
-    icon: IconData(m['iconCodepoint'] as int? ?? Icons.playlist_play.codePoint, fontFamily: 'MaterialIcons'),
+    icon: IconData(
+      m['iconCodepoint'] as int? ?? Icons.playlist_play.codePoint,
+      fontFamily: 'MaterialIcons',
+    ),
   );
 }
 
@@ -164,8 +197,6 @@ class MelodyaApp extends StatefulWidget {
 }
 
 class _MelodyaAppState extends State<MelodyaApp> {
-  final AuthService _authService = AuthService();
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -238,7 +269,7 @@ class _AuthGateState extends State<AuthGate> {
         },
       );
     }
-    
+
     // Langsung tampilkan app setelah klik mulai
     return MobileAppLayout(
       onLogout: () async {
@@ -535,7 +566,6 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
   // State untuk playlist (Hive - persistent)
   List<Playlist> _userPlaylists = [];
 
-
   // Audio Player State
   final AudioPlayer _audioPlayer = AudioPlayer();
   String? _currentPlayingTitle;
@@ -559,7 +589,11 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
   late final AnimationController _rotationController;
   late final Animation<double> _rotationAnimation;
   Timer? _debounce;
-  List<String> _recentSearches = ['Arctic Monkeys', 'After Hours', 'Techno 2024'];
+  List<String> _recentSearches = [
+    'Arctic Monkeys',
+    'After Hours',
+    'Techno 2024',
+  ];
 
   String get _userName => _authService.currentUserDisplayName ?? 'Pengguna';
   bool get _isGuest => _userName == 'Tamu';
@@ -642,7 +676,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
         });
       }
     });
-    
+
     _loadRecentTracks();
     _loadPlaylists();
 
@@ -716,98 +750,112 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
       'subtitle': 'Artis Neon Horizon',
       'icon': Icons.music_note,
       'color': kColorAccentPurple,
-      'url': 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/c3/84/c4/c384c478-f7b5-fb35-46eb-5bb7d22b2707/m4a.high.stream.mp4',
+      'url':
+          'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/c3/84/c4/c384c478-f7b5-fb35-46eb-5bb7d22b2707/m4a.high.stream.mp4',
     },
     {
       'title': 'GHOST',
       'subtitle': 'Artis Justin Bieber',
       'icon': Icons.music_note,
       'color': kColorAccentPurple,
-      'url': 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/4a/eb/1e/4aeb1e8f-7f72-74cc-7f7a-1db2a32eb518/m4a.high.stream.mp4',
+      'url':
+          'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/4a/eb/1e/4aeb1e8f-7f72-74cc-7f7a-1db2a32eb518/m4a.high.stream.mp4',
     },
     {
       'title': 'SORRY',
       'subtitle': 'Artis Justin Bieber',
       'icon': Icons.library_music,
       'color': kColorAccent,
-      'url': 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/cd/85/6d/cd856d3a-be7d-df98-5c12-32111c1dfb7a/m4a.high.stream.mp4',
+      'url':
+          'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/cd/85/6d/cd856d3a-be7d-df98-5c12-32111c1dfb7a/m4a.high.stream.mp4',
     },
     {
       'title': 'I DONT CARE',
       'subtitle': 'Artis Justin Bieber',
       'icon': Icons.album,
       'color': kColorAccentCyan,
-      'url': 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview128/v4/31/5b/4b/315b4b1a-2009-4171-8bc4-72791448b111/m4a.high.stream.mp4',
+      'url':
+          'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview128/v4/31/5b/4b/315b4b1a-2009-4171-8bc4-72791448b111/m4a.high.stream.mp4',
     },
     {
       'title': 'After Hours',
       'subtitle': 'Artis The Weeknd',
       'icon': Icons.waves,
       'color': Color(0xFF8E2DE2),
-      'url': 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/0f/50/de/0f50decf-f6f8-9a99-b1d6-b8166c30f4e3/m4a.high.stream.mp4',
+      'url':
+          'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/0f/50/de/0f50decf-f6f8-9a99-b1d6-b8166c30f4e3/m4a.high.stream.mp4',
     },
     {
       'title': 'Currents',
       'subtitle': 'Artis Tame Impala',
       'icon': Icons.nightlight_round,
       'color': Color(0xFF2C3E50),
-      'url': 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/2e/d0/52/2ed0525d-4f11-7360-1e5b-f54f7a26f634/m4a.high.stream.mp4',
+      'url':
+          'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/2e/d0/52/2ed0525d-4f11-7360-1e5b-f54f7a26f634/m4a.high.stream.mp4',
     },
     {
       'title': 'Daily Mix 1',
       'subtitle': 'Artis M83, Justice, Daft Punk',
       'icon': Icons.album,
       'color': Colors.tealAccent,
-      'url': 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/c5/4b/65/c54b656b-a25e-e478-bfcf-76d33306c5be/m4a.high.stream.mp4',
+      'url':
+          'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/c5/4b/65/c54b656b-a25e-e478-bfcf-76d33306c5be/m4a.high.stream.mp4',
     },
     {
       'title': 'Late Night Jazz',
       'subtitle': 'Artis Jazz Classics',
       'icon': Icons.mic,
       'color': Colors.orangeAccent,
-      'url': 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/44/2c/3e/442c3e1e-21ef-d75d-313d-cd30f5a7702f/m4a.high.stream.mp4',
+      'url':
+          'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/44/2c/3e/442c3e1e-21ef-d75d-313d-cd30f5a7702f/m4a.high.stream.mp4',
     },
     {
       'title': 'Experimental Void',
       'subtitle': 'Artis IDM & Ambient',
       'icon': Icons.graphic_eq,
       'color': Colors.purpleAccent,
-      'url': 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/e0/75/5a/e0755a57-0a4a-4e8a-e9fa-5eb71a28a211/m4a.high.stream.mp4',
+      'url':
+          'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/e0/75/5a/e0755a57-0a4a-4e8a-e9fa-5eb71a28a211/m4a.high.stream.mp4',
     },
     {
       'title': 'Kisah Sukses',
       'subtitle': 'Podcast Motivasi',
       'icon': Icons.mic,
       'color': kColorAccentCyan,
-      'url': 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/58/b7/cc/58b7cc40-8809-58b1-38eb-9a2cf52a0a2d/m4a.high.stream.mp4',
+      'url':
+          'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/58/b7/cc/58b7cc40-8809-58b1-38eb-9a2cf52a0a2d/m4a.high.stream.mp4',
     },
     {
       'title': 'Obrolan Malam',
       'subtitle': 'Podcast Horor',
       'icon': Icons.mic_external_on,
       'color': kColorAccent,
-      'url': 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/c3/84/c4/c384c478-f7b5-fb35-46eb-5bb7d22b2707/m4a.high.stream.mp4',
+      'url':
+          'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/c3/84/c4/c384c478-f7b5-fb35-46eb-5bb7d22b2707/m4a.high.stream.mp4',
     },
     {
       'title': 'Dunia Tech',
       'subtitle': 'Podcast IT',
       'icon': Icons.headset_mic,
       'color': kColorAccentCyan,
-      'url': 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/cd/85/6d/cd856d3a-be7d-df98-5c12-32111c1dfb7a/m4a.high.stream.mp4',
+      'url':
+          'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/cd/85/6d/cd856d3a-be7d-df98-5c12-32111c1dfb7a/m4a.high.stream.mp4',
     },
     {
       'title': 'Pagi Ceria',
       'subtitle': 'Radio FM Nasional',
       'icon': Icons.radio,
       'color': kColorAccentCyan,
-      'url': 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview128/v4/31/5b/4b/315b4b1a-2009-4171-8bc4-72791448b111/m4a.high.stream.mp4',
+      'url':
+          'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview128/v4/31/5b/4b/315b4b1a-2009-4171-8bc4-72791448b111/m4a.high.stream.mp4',
     },
     {
       'title': 'Sore Santai',
       'subtitle': 'Hits Radio Lokal',
       'icon': Icons.radio,
       'color': kColorAccentPurple,
-      'url': 'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/0f/50/de/0f50decf-f6f8-9a99-b1d6-b8166c30f4e3/m4a.high.stream.mp4',
+      'url':
+          'https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/0f/50/de/0f50decf-f6f8-9a99-b1d6-b8166c30f4e3/m4a.high.stream.mp4',
     },
   ];
 
@@ -926,14 +974,20 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                   GestureDetector(
                     onTap: () => _showUserProfile(context),
                     child: CircleAvatar(
-                      key: ValueKey('home_profile_${_profileImageBytes.hashCode}'),
+                      key: ValueKey(
+                        'home_profile_${_profileImageBytes.hashCode}',
+                      ),
                       radius: 20,
                       backgroundColor: kColorAccent.withOpacity(0.2),
                       foregroundImage: _profileImageBytes != null
                           ? MemoryImage(_profileImageBytes!)
                           : null,
                       child: _profileImageBytes == null
-                          ? const Icon(Icons.person, color: kColorAccent, size: 20)
+                          ? const Icon(
+                              Icons.person,
+                              color: kColorAccent,
+                              size: 20,
+                            )
                           : null,
                     ),
                   ),
@@ -950,7 +1004,10 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                     ],
                   ),
                   IconButton(
-                    icon: const Icon(Icons.settings_outlined, color: Colors.white),
+                    icon: const Icon(
+                      Icons.settings_outlined,
+                      color: Colors.white,
+                    ),
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -1000,7 +1057,10 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                   children: [
                     _buildCategoryChip('Semua', _selectedCategory == 'Semua'),
                     _buildCategoryChip('Musik', _selectedCategory == 'Musik'),
-                    _buildCategoryChip('Podcast', _selectedCategory == 'Podcast'),
+                    _buildCategoryChip(
+                      'Podcast',
+                      _selectedCategory == 'Podcast',
+                    ),
                   ],
                 ),
               ),
@@ -1106,7 +1166,12 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                     'All Songs / Local Audio',
                     Icons.library_music,
                     Colors.orangeAccent,
-                    [..._apiTracks, ..._recentTracks.where((t) => !_apiTracks.any((a) => a.title == t.title))],
+                    [
+                      ..._apiTracks,
+                      ..._recentTracks.where(
+                        (t) => !_apiTracks.any((a) => a.title == t.title),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 12),
                   _buildLocalPlaylistCard(
@@ -1115,9 +1180,14 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                     Colors.purpleAccent,
                     [..._apiTracks, ..._favApiTracks].where((t) {
                       final q = '${t.title} ${t.artist}'.toLowerCase();
-                      return q.contains('acoustic') || q.contains('chill') || q.contains('calm') ||
-                             q.contains('slow') || q.contains('jazz') || q.contains('lofi') ||
-                             q.contains('soft') || q.contains('relax');
+                      return q.contains('acoustic') ||
+                          q.contains('chill') ||
+                          q.contains('calm') ||
+                          q.contains('slow') ||
+                          q.contains('jazz') ||
+                          q.contains('lofi') ||
+                          q.contains('soft') ||
+                          q.contains('relax');
                     }).toList(),
                   ),
                 ],
@@ -1129,7 +1199,13 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
     );
   }
 
-  Widget _buildRecentCard(String title, String subtitle, List<Color> gradientColors, IconData defaultIcon, String audioUrl) {
+  Widget _buildRecentCard(
+    String title,
+    String subtitle,
+    List<Color> gradientColors,
+    IconData defaultIcon,
+    String audioUrl,
+  ) {
     return GestureDetector(
       onTap: () {
         _playTrack(title, audioUrl);
@@ -1151,7 +1227,11 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                 ),
               ),
               child: Center(
-                child: Icon(defaultIcon, size: 50, color: Colors.white.withOpacity(0.5)),
+                child: Icon(
+                  defaultIcon,
+                  size: 50,
+                  color: Colors.white.withOpacity(0.5),
+                ),
               ),
             ),
             const SizedBox(height: 12),
@@ -1187,7 +1267,8 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
     Color accentColor,
     List<MusicTrack> tracks,
   ) {
-    final bool isThisPlaying = _currentPlayingTitle != null &&
+    final bool isThisPlaying =
+        _currentPlayingTitle != null &&
         tracks.any((t) => t.title == _currentPlayingTitle) &&
         _isPlaying;
     final int count = tracks.length;
@@ -1244,7 +1325,9 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
               onTap: () {
                 if (tracks.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Belum ada lagu di playlist ini.')),
+                    const SnackBar(
+                      content: Text('Belum ada lagu di playlist ini.'),
+                    ),
                   );
                   return;
                 }
@@ -1254,7 +1337,9 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: isThisPlaying ? accentColor : Colors.white24),
+                  border: Border.all(
+                    color: isThisPlaying ? accentColor : Colors.white24,
+                  ),
                 ),
                 child: Icon(
                   isThisPlaying ? Icons.pause : Icons.play_arrow,
@@ -1314,7 +1399,9 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                       decoration: BoxDecoration(
                         color: Colors.black,
                         borderRadius: BorderRadius.circular(14),
-                        border: Border(left: BorderSide(color: accentColor, width: 3)),
+                        border: Border(
+                          left: BorderSide(color: accentColor, width: 3),
+                        ),
                       ),
                       child: Icon(icon, color: Colors.white54, size: 26),
                     ),
@@ -1325,11 +1412,18 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                         children: [
                           Text(
                             title,
-                            style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           Text(
                             '${tracks.length} lagu',
-                            style: TextStyle(color: accentColor.withOpacity(0.8), fontSize: 12),
+                            style: TextStyle(
+                              color: accentColor.withOpacity(0.8),
+                              fontSize: 12,
+                            ),
                           ),
                         ],
                       ),
@@ -1339,13 +1433,25 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                         style: ElevatedButton.styleFrom(
                           backgroundColor: accentColor,
                           foregroundColor: Colors.black,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 8,
+                          ),
                         ),
                         icon: const Icon(Icons.shuffle, size: 16),
-                        label: const Text('Acak', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                        label: const Text(
+                          'Acak',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                         onPressed: () {
-                          final shuffled = List<MusicTrack>.from(tracks)..shuffle();
+                          final shuffled = List<MusicTrack>.from(tracks)
+                            ..shuffle();
                           Navigator.pop(ctx);
                           _playOrPause(shuffled.first);
                         },
@@ -1364,9 +1470,21 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                           children: [
                             Icon(icon, color: Colors.white12, size: 60),
                             const SizedBox(height: 16),
-                            const Text('Belum ada lagu di sini', style: TextStyle(color: Colors.white38, fontSize: 15)),
+                            const Text(
+                              'Belum ada lagu di sini',
+                              style: TextStyle(
+                                color: Colors.white38,
+                                fontSize: 15,
+                              ),
+                            ),
                             const SizedBox(height: 8),
-                            const Text('Cari & putar lagu terlebih dahulu', style: TextStyle(color: Colors.white24, fontSize: 12)),
+                            const Text(
+                              'Cari & putar lagu terlebih dahulu',
+                              style: TextStyle(
+                                color: Colors.white24,
+                                fontSize: 12,
+                              ),
+                            ),
                           ],
                         ),
                       )
@@ -1376,21 +1494,36 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                         itemCount: tracks.length,
                         itemBuilder: (_, i) {
                           final track = tracks[i];
-                          final bool playing = _currentPlayingTitle == track.title && _isPlaying;
+                          final bool playing =
+                              _currentPlayingTitle == track.title && _isPlaying;
                           return ListTile(
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 4,
+                            ),
                             leading: Container(
                               width: 46,
                               height: 46,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 gradient: LinearGradient(
-                                  colors: [track.color, track.color.withOpacity(0.5)],
+                                  colors: [
+                                    track.color,
+                                    track.color.withOpacity(0.5),
+                                  ],
                                 ),
                               ),
                               child: playing
-                                  ? const Icon(Icons.graphic_eq, color: Colors.white, size: 22)
-                                  : Icon(track.icon, color: Colors.white70, size: 20),
+                                  ? const Icon(
+                                      Icons.graphic_eq,
+                                      color: Colors.white,
+                                      size: 22,
+                                    )
+                                  : Icon(
+                                      track.icon,
+                                      color: Colors.white70,
+                                      size: 20,
+                                    ),
                             ),
                             title: Text(
                               track.title,
@@ -1404,13 +1537,18 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                             ),
                             subtitle: Text(
                               track.artist,
-                              style: const TextStyle(color: Colors.white38, fontSize: 12),
+                              style: const TextStyle(
+                                color: Colors.white38,
+                                fontSize: 12,
+                              ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
                             trailing: IconButton(
                               icon: Icon(
-                                playing ? Icons.pause_circle : Icons.play_circle,
+                                playing
+                                    ? Icons.pause_circle
+                                    : Icons.play_circle,
                                 color: playing ? accentColor : Colors.white54,
                                 size: 30,
                               ),
@@ -1738,7 +1876,6 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
     }
   }
 
-
   Widget _buildNowPlayingCard() {
     final track = _currentlyPlayingTrack;
     if (track == null) return const SizedBox.shrink();
@@ -1873,51 +2010,6 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
     );
   }
 
-  Widget _buildListItems() {
-    if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(color: kColorAccent),
-      );
-    }
-
-    List<MusicTrack> displayTracks = _apiTracks;
-    if (_selectedCategory == 'Musik') {
-      displayTracks = _followedApiTracks;
-    }
-
-    if (displayTracks.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.music_note_outlined,
-              color: Colors.white24,
-              size: 64,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              _selectedCategory == 'Musik'
-                  ? 'Belum ada lagu yang diikuti'
-                  : 'Tidak ada lagu ditemukan',
-              style: const TextStyle(color: Colors.white54),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return ListView.builder(
-      key: ValueKey('api_list_$_selectedCategory'),
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 120),
-      itemCount: displayTracks.length,
-      itemBuilder: (context, index) {
-        final track = displayTracks[index];
-        return _buildTrackItemFromApi(track);
-      },
-    );
-  }
-
   Widget _buildTrackItemFromApi(MusicTrack track) {
     bool isCurrent = _currentPlayingTitle == track.title;
 
@@ -2037,9 +2129,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
               }
             },
             onChanged: (value) {
-              setState(
-                () {},
-              );
+              setState(() {});
               if (_debounce?.isActive ?? false) _debounce!.cancel();
               _debounce = Timer(const Duration(milliseconds: 500), () {
                 if (value.isNotEmpty) {
@@ -2177,6 +2267,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                 colors: [Color(0xFFE91E63), Color(0xFF9C27B0)],
               ),
               Icons.music_note,
+              imageUrl: 'assets/images/pop.jpg',
             ),
             _buildBrowseGenreCard(
               'Indie',
@@ -2186,6 +2277,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                 colors: [Color(0xFF00BCD4), Color(0xFF4CAF50)],
               ),
               Icons.headphones,
+              imageUrl: 'assets/images/indie.jpg',
             ),
             _buildBrowseGenreCard(
               'Electronic',
@@ -2195,6 +2287,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                 colors: [Color(0xFF7B1FA2), Color(0xFFE91E63)],
               ),
               Icons.equalizer,
+              imageUrl: 'assets/images/electronic.jpg',
             ),
             _buildBrowseGenreCard(
               'Chill',
@@ -2204,6 +2297,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                 colors: [Color(0xFF0288D1), Color(0xFF00BCD4)],
               ),
               Icons.waves,
+              imageUrl: 'assets/images/chill.jpg',
             ),
             _buildBrowseGenreCard(
               'Jazz',
@@ -2213,6 +2307,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                 colors: [Color(0xFFF57C00), Color(0xFFFFB300)],
               ),
               Icons.piano,
+              imageUrl: 'assets/images/jazz.jpg',
             ),
             _buildBrowseGenreCard(
               'Rock',
@@ -2222,6 +2317,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                 colors: [Color(0xFFD32F2F), Color(0xFFE91E63)],
               ),
               Icons.electric_bolt,
+              imageUrl: 'assets/images/rock.jpg',
             ),
           ],
         ),
@@ -2272,8 +2368,13 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
     );
   }
 
-  /// A Browse genre card with gradient background and icon
-  Widget _buildBrowseGenreCard(String title, Gradient gradient, IconData icon) {
+  /// A Browse genre card with gradient background, icon and optional image
+  Widget _buildBrowseGenreCard(
+    String title,
+    Gradient gradient,
+    IconData icon, {
+    String? imageUrl,
+  }) {
     return GestureDetector(
       onTap: () {
         _searchController.text = title;
@@ -2295,19 +2396,58 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
         clipBehavior: Clip.antiAlias,
         child: Stack(
           children: [
-            // Background icon (large, faded)
-            Positioned(
-              right: -10,
-              bottom: -10,
-              child: Transform.rotate(
-                angle: 0.3,
-                child: Icon(
-                  icon,
-                  size: 80,
-                  color: Colors.white.withOpacity(0.15),
+            // Optional image on the right-bottom (like a tilted phone/album)
+            if (imageUrl != null) ...[
+              Positioned(
+                right: -12,
+                bottom: -14,
+                child: Transform.rotate(
+                  angle: -0.18,
+                  child: Container(
+                    width: 92,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.35),
+                          blurRadius: 12,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: imageUrl.startsWith('assets/')
+                        ? Image.asset(
+                            imageUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Container(color: Colors.black26),
+                          )
+                        : Image.network(
+                            imageUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Container(color: Colors.black26),
+                          ),
+                  ),
                 ),
               ),
-            ),
+            ] else ...[
+              // Background icon (large, faded)
+              Positioned(
+                right: -10,
+                bottom: -10,
+                child: Transform.rotate(
+                  angle: 0.3,
+                  child: Icon(
+                    icon,
+                    size: 80,
+                    color: Colors.white.withOpacity(0.15),
+                  ),
+                ),
+              ),
+            ],
             // Genre label
             Padding(
               padding: const EdgeInsets.all(14),
@@ -2332,7 +2472,6 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
       ),
     );
   }
-
 
   // ==========================================
   // Halaman 3: KOLEKSI
@@ -2386,7 +2525,11 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                                   height: 36,
                                 ),
                               )
-                            : const Icon(Icons.music_note, color: Colors.white, size: 18),
+                            : const Icon(
+                                Icons.music_note,
+                                color: Colors.white,
+                                size: 18,
+                              ),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -2406,11 +2549,17 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                   ],
                 ),
                 IconButton(
-                  icon: const Icon(Icons.settings_outlined, color: Colors.white70, size: 24),
+                  icon: const Icon(
+                    Icons.settings_outlined,
+                    color: Colors.white70,
+                    size: 24,
+                  ),
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const SettingsPage()),
+                      MaterialPageRoute(
+                        builder: (context) => const SettingsPage(),
+                      ),
                     );
                   },
                 ),
@@ -2438,7 +2587,9 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                     IconButton(
                       icon: Icon(
                         _librarySearchActive ? Icons.search_off : Icons.search,
-                        color: _librarySearchActive ? const Color(0xFFCE93D8) : Colors.white,
+                        color: _librarySearchActive
+                            ? const Color(0xFFCE93D8)
+                            : Colors.white,
                         size: 26,
                       ),
                       onPressed: () {
@@ -2450,7 +2601,11 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                     ),
                     // + Tombol Buat Playlist Baru
                     IconButton(
-                      icon: const Icon(Icons.add, color: Colors.white, size: 26),
+                      icon: const Icon(
+                        Icons.add,
+                        color: Colors.white,
+                        size: 26,
+                      ),
                       onPressed: _showCreatePlaylistDialog,
                     ),
                   ],
@@ -2470,33 +2625,50 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.08),
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: const Color(0xFF9C27B0).withOpacity(0.5)),
+                        border: Border.all(
+                          color: const Color(0xFF9C27B0).withOpacity(0.5),
+                        ),
                       ),
                       child: TextField(
                         autofocus: true,
-                        style: const TextStyle(color: Colors.white, fontSize: 15),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                        ),
                         decoration: InputDecoration(
                           hintText: 'Cari playlist, artis, album...',
-                          hintStyle: TextStyle(color: Colors.white.withOpacity(0.35)),
-                          prefixIcon: const Icon(Icons.search, color: Color(0xFFCE93D8), size: 20),
+                          hintStyle: TextStyle(
+                            color: Colors.white.withOpacity(0.35),
+                          ),
+                          prefixIcon: const Icon(
+                            Icons.search,
+                            color: Color(0xFFCE93D8),
+                            size: 20,
+                          ),
                           border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 14,
+                          ),
                         ),
                         onChanged: (val) {
                           setState(() {
                             _librarySearchQuery = val.toLowerCase();
                           });
                           if (_selectedLibraryTab == 'Albums') {
-                            if (_debounce?.isActive ?? false) _debounce!.cancel();
-                            _debounce = Timer(const Duration(milliseconds: 500), () {
-                              if (val.isNotEmpty) {
-                                _fetchMusicData(val);
-                              } else {
-                                setState(() {
-                                  _apiTracks = [];
-                                });
-                              }
-                            });
+                            if (_debounce?.isActive ?? false)
+                              _debounce!.cancel();
+                            _debounce = Timer(
+                              const Duration(milliseconds: 500),
+                              () {
+                                if (val.isNotEmpty) {
+                                  _fetchMusicData(val);
+                                } else {
+                                  setState(() {
+                                    _apiTracks = [];
+                                  });
+                                }
+                              },
+                            );
                           }
                         },
                       ),
@@ -2526,18 +2698,27 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                       },
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 250),
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 10,
+                        ),
                         decoration: BoxDecoration(
-                          color: isSelected ? const Color(0xFF7B1FA2) : Colors.white.withOpacity(0.08),
+                          color: isSelected
+                              ? const Color(0xFF7B1FA2)
+                              : Colors.white.withOpacity(0.08),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: isSelected ? const Color(0xFF9C27B0) : Colors.white.withOpacity(0.15),
+                            color: isSelected
+                                ? const Color(0xFF9C27B0)
+                                : Colors.white.withOpacity(0.15),
                             width: 1,
                           ),
                           boxShadow: isSelected
                               ? [
                                   BoxShadow(
-                                    color: const Color(0xFF7B1FA2).withOpacity(0.4),
+                                    color: const Color(
+                                      0xFF7B1FA2,
+                                    ).withOpacity(0.4),
                                     blurRadius: 10,
                                     offset: const Offset(0, 3),
                                   ),
@@ -2548,7 +2729,9 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                           tab,
                           style: TextStyle(
                             color: isSelected ? Colors.white : Colors.white70,
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                            fontWeight: isSelected
+                                ? FontWeight.w600
+                                : FontWeight.normal,
                             fontSize: 14,
                           ),
                         ),
@@ -2567,8 +2750,8 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
             child: _selectedLibraryTab == 'Playlists'
                 ? _buildPlaylistsTabContent()
                 : _selectedLibraryTab == 'Artists'
-                    ? _buildArtistsTabContent()
-                    : _buildAlbumsTabContent(),
+                ? _buildArtistsTabContent()
+                : _buildAlbumsTabContent(),
           ),
         ],
       ),
@@ -2615,7 +2798,11 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                       ),
                     ],
                   ),
-                  child: Icon(icon, color: Colors.white.withOpacity(0.8), size: 26),
+                  child: Icon(
+                    icon,
+                    color: Colors.white.withOpacity(0.8),
+                    size: 26,
+                  ),
                 ),
                 const SizedBox(width: 14),
                 // Title & Subtitle
@@ -2672,17 +2859,21 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
     final filteredPlaylists = _librarySearchQuery.isEmpty
         ? _userPlaylists
         : _userPlaylists
-            .where((pl) => pl.name.toLowerCase().contains(_librarySearchQuery))
-            .toList();
+              .where(
+                (pl) => pl.name.toLowerCase().contains(_librarySearchQuery),
+              )
+              .toList();
 
     // Filter recently played berdasarkan query pencarian
     final filteredRecent = _librarySearchQuery.isEmpty
         ? recentApiTracks
         : recentApiTracks
-            .where((t) =>
-                t.title.toLowerCase().contains(_librarySearchQuery) ||
-                t.artist.toLowerCase().contains(_librarySearchQuery))
-            .toList();
+              .where(
+                (t) =>
+                    t.title.toLowerCase().contains(_librarySearchQuery) ||
+                    t.artist.toLowerCase().contains(_librarySearchQuery),
+              )
+              .toList();
 
     return SingleChildScrollView(
       padding: const EdgeInsets.only(bottom: 100),
@@ -2703,7 +2894,11 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                     gradient: const LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      colors: [Color(0xFF1A0030), Color(0xFF2D004F), Color(0xFF1A0030)],
+                      colors: [
+                        Color(0xFF1A0030),
+                        Color(0xFF2D004F),
+                        Color(0xFF1A0030),
+                      ],
                     ),
                     boxShadow: [
                       BoxShadow(
@@ -2717,14 +2912,21 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                     borderRadius: BorderRadius.circular(20),
                     child: Stack(
                       children: [
-                        Positioned.fill(child: CustomPaint(painter: _LibraryWaveformPainter())),
+                        Positioned.fill(
+                          child: CustomPaint(
+                            painter: _LibraryWaveformPainter(),
+                          ),
+                        ),
                         Positioned.fill(
                           child: Container(
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
-                                colors: [Colors.transparent, const Color(0xFF1A0030).withOpacity(0.7)],
+                                colors: [
+                                  Colors.transparent,
+                                  const Color(0xFF1A0030).withOpacity(0.7),
+                                ],
                               ),
                             ),
                           ),
@@ -2737,24 +2939,48 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                             children: [
                               Row(
                                 children: [
-                                  const Icon(Icons.favorite, color: Color(0xFFCE93D8), size: 18),
+                                  const Icon(
+                                    Icons.favorite,
+                                    color: Color(0xFFCE93D8),
+                                    size: 18,
+                                  ),
                                   const SizedBox(width: 8),
                                   const Text(
                                     'COLLECTION',
-                                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFFCE93D8), letterSpacing: 1.5),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFFCE93D8),
+                                      letterSpacing: 1.5,
+                                    ),
                                   ),
                                 ],
                               ),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      const Text('Liked Songs', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white)),
+                                      const Text(
+                                        'Liked Songs',
+                                        style: TextStyle(
+                                          fontSize: 26,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
                                       const SizedBox(height: 4),
-                                      Text('${_favorites.length} tracks in your vault', style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.6))),
+                                      Text(
+                                        '${_favorites.length} tracks in your vault',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: Colors.white.withOpacity(0.6),
+                                        ),
+                                      ),
                                     ],
                                   ),
                                   GestureDetector(
@@ -2763,10 +2989,19 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                                         _playOrPause(_favApiTracks.first);
                                       } else if (_favoriteTracks.isNotEmpty) {
                                         final t = _favoriteTracks.first;
-                                        _playTrack(t['title'] as String, t['url'] as String);
+                                        _playTrack(
+                                          t['title'] as String,
+                                          t['url'] as String,
+                                        );
                                       } else {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(content: Text('Tambahkan lagu favorit terlebih dahulu ♥')),
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Tambahkan lagu favorit terlebih dahulu ♥',
+                                            ),
+                                          ),
                                         );
                                       }
                                     },
@@ -2775,12 +3010,27 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                                       height: 48,
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
-                                        gradient: const LinearGradient(colors: [Color(0xFFCE93D8), Color(0xFFAB47BC)]),
+                                        gradient: const LinearGradient(
+                                          colors: [
+                                            Color(0xFFCE93D8),
+                                            Color(0xFFAB47BC),
+                                          ],
+                                        ),
                                         boxShadow: [
-                                          BoxShadow(color: const Color(0xFFAB47BC).withOpacity(0.5), blurRadius: 12, offset: const Offset(0, 4)),
+                                          BoxShadow(
+                                            color: const Color(
+                                              0xFFAB47BC,
+                                            ).withOpacity(0.5),
+                                            blurRadius: 12,
+                                            offset: const Offset(0, 4),
+                                          ),
                                         ],
                                       ),
-                                      child: const Icon(Icons.play_arrow, color: Colors.white, size: 28),
+                                      child: const Icon(
+                                        Icons.play_arrow,
+                                        color: Colors.white,
+                                        size: 28,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -2803,23 +3053,37 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
                 children: [
-                  Icon(Icons.tune, color: Colors.white.withOpacity(0.7), size: 18),
+                  Icon(
+                    Icons.tune,
+                    color: Colors.white.withOpacity(0.7),
+                    size: 18,
+                  ),
                   const SizedBox(width: 8),
-                  const Text('Recently Played', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white)),
+                  const Text(
+                    'Recently Played',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
                 ],
               ),
             ),
             const SizedBox(height: 12),
 
             // --- Item Recently Played (dari API tracks) ---
-            ...filteredRecent.map((track) => _buildLibraryPlaylistItem(
-              title: track.title,
-              subtitle: 'Playlist • ${track.artist}',
-              gradientColors: [track.color, track.color.withOpacity(0.6)],
-              icon: Icons.music_note,
-              onTap: () => _playOrPause(track),
-              onMoreTap: () => _showLibraryItemOptions(track.title, isUserPlaylist: false),
-            )),
+            ...filteredRecent.map(
+              (track) => _buildLibraryPlaylistItem(
+                title: track.title,
+                subtitle: 'Playlist • ${track.artist}',
+                gradientColors: [track.color, track.color.withOpacity(0.6)],
+                icon: Icons.music_note,
+                onTap: () => _playOrPause(track),
+                onMoreTap: () =>
+                    _showLibraryItemOptions(track.title, isUserPlaylist: false),
+              ),
+            ),
             const SizedBox(height: 16),
           ],
 
@@ -2830,22 +3094,31 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
                 child: Text(
                   '${filteredPlaylists.length} playlist ditemukan',
-                  style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.5)),
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.white.withOpacity(0.5),
+                  ),
                 ),
               ),
-            ...filteredPlaylists.map((playlist) => _buildLibraryPlaylistItem(
-              title: playlist.name,
-              subtitle: 'Playlist • ${playlist.trackTitles.length} tracks',
-              gradientColors: [playlist.color, playlist.color.withOpacity(0.7)],
-              icon: playlist.icon,
-              onTap: () => _showPlaylistDetail(playlist),
-              onMoreTap: () => _showLibraryItemOptions(
-                playlist.name,
-                isUserPlaylist: true,
-                playlist: playlist,
+            ...filteredPlaylists.map(
+              (playlist) => _buildLibraryPlaylistItem(
+                title: playlist.name,
+                subtitle: 'Playlist • ${playlist.trackTitles.length} tracks',
+                gradientColors: [
+                  playlist.color,
+                  playlist.color.withOpacity(0.7),
+                ],
+                icon: playlist.icon,
+                onTap: () => _showPlaylistDetail(playlist),
+                onMoreTap: () => _showLibraryItemOptions(
+                  playlist.name,
+                  isUserPlaylist: true,
+                  playlist: playlist,
+                ),
               ),
-            )),
-          ] else if (filteredPlaylists.isEmpty && _librarySearchQuery.isNotEmpty) ...[
+            ),
+          ] else if (filteredPlaylists.isEmpty &&
+              _librarySearchQuery.isNotEmpty) ...[
             // --- Empty search result ---
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 40),
@@ -2860,12 +3133,19 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                         color: Colors.white.withOpacity(0.04),
                         border: Border.all(color: Colors.white12),
                       ),
-                      child: const Icon(Icons.search_off, color: Colors.white24, size: 40),
+                      child: const Icon(
+                        Icons.search_off,
+                        color: Colors.white24,
+                        size: 40,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     Text(
                       'Tidak ada hasil untuk "$_librarySearchQuery"',
-                      style: const TextStyle(color: Colors.white38, fontSize: 15),
+                      style: const TextStyle(
+                        color: Colors.white38,
+                        fontSize: 15,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 8),
@@ -2878,7 +3158,8 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                 ),
               ),
             ),
-          ] else if (filteredPlaylists.isEmpty && _librarySearchQuery.isEmpty) ...[
+          ] else if (filteredPlaylists.isEmpty &&
+              _librarySearchQuery.isEmpty) ...[
             // --- Empty state ketika belum ada playlist sama sekali ---
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 40),
@@ -2893,12 +3174,22 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                         color: Colors.white.withOpacity(0.04),
                         border: Border.all(color: Colors.white12),
                       ),
-                      child: const Icon(Icons.queue_music, color: Colors.white24, size: 40),
+                      child: const Icon(
+                        Icons.queue_music,
+                        color: Colors.white24,
+                        size: 40,
+                      ),
                     ),
                     const SizedBox(height: 16),
-                    const Text('Belum ada playlist', style: TextStyle(color: Colors.white38, fontSize: 16)),
+                    const Text(
+                      'Belum ada playlist',
+                      style: TextStyle(color: Colors.white38, fontSize: 16),
+                    ),
                     const SizedBox(height: 8),
-                    const Text('Tekan + untuk membuat playlist pertamamu', style: TextStyle(color: Colors.white24, fontSize: 13)),
+                    const Text(
+                      'Tekan + untuk membuat playlist pertamamu',
+                      style: TextStyle(color: Colors.white24, fontSize: 13),
+                    ),
                   ],
                 ),
               ),
@@ -2930,12 +3221,26 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                 color: Colors.white.withOpacity(0.04),
                 border: Border.all(color: Colors.white12),
               ),
-              child: const Icon(Icons.person_outline, color: Colors.white24, size: 44),
+              child: const Icon(
+                Icons.person_outline,
+                color: Colors.white24,
+                size: 44,
+              ),
             ),
             const SizedBox(height: 20),
-            const Text('Belum ada artis yang diikuti', style: TextStyle(color: Colors.white54, fontSize: 16, fontWeight: FontWeight.w500)),
+            const Text(
+              'Belum ada artis yang diikuti',
+              style: TextStyle(
+                color: Colors.white54,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
             const SizedBox(height: 8),
-            const Text('Ikuti artis melalui halaman Search', style: TextStyle(color: Colors.white30, fontSize: 13)),
+            const Text(
+              'Ikuti artis melalui halaman Search',
+              style: TextStyle(color: Colors.white30, fontSize: 13),
+            ),
           ],
         ),
       );
@@ -2967,32 +3272,79 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                       height: 56,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        gradient: LinearGradient(colors: [color, color.withOpacity(0.5)]),
-                        boxShadow: [BoxShadow(color: color.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 3))],
+                        gradient: LinearGradient(
+                          colors: [color, color.withOpacity(0.5)],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: color.withOpacity(0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
                       ),
                       child: tracks.first.imageUrl.isNotEmpty
-                          ? ClipOval(child: Image.network(tracks.first.imageUrl, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Icon(Icons.person, color: Colors.white.withOpacity(0.8), size: 26)))
-                          : Icon(Icons.person, color: Colors.white.withOpacity(0.8), size: 26),
+                          ? ClipOval(
+                              child: Image.network(
+                                tracks.first.imageUrl,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => Icon(
+                                  Icons.person,
+                                  color: Colors.white.withOpacity(0.8),
+                                  size: 26,
+                                ),
+                              ),
+                            )
+                          : Icon(
+                              Icons.person,
+                              color: Colors.white.withOpacity(0.8),
+                              size: 26,
+                            ),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(artistName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: Colors.white)),
+                          Text(
+                            artistName,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
+                          ),
                           const SizedBox(height: 3),
-                          Text('${tracks.length} lagu • Diikuti', style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.5))),
+                          Text(
+                            '${tracks.length} lagu • Diikuti',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.white.withOpacity(0.5),
+                            ),
+                          ),
                         ],
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFF7B1FA2).withOpacity(0.2),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFF7B1FA2).withOpacity(0.5)),
+                        border: Border.all(
+                          color: const Color(0xFF7B1FA2).withOpacity(0.5),
+                        ),
                       ),
-                      child: const Text('Diikuti', style: TextStyle(color: Color(0xFFCE93D8), fontSize: 12, fontWeight: FontWeight.w600)),
+                      child: const Text(
+                        'Diikuti',
+                        style: TextStyle(
+                          color: Color(0xFFCE93D8),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -3017,7 +3369,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
           'color': 0xFF1E3A8A, // Warna Biru Tua
           'icon': Icons.album_rounded, // Pola Piringan Hitam
           'gradient': <Color>[const Color(0xFF1E3A8A), const Color(0xFF0D47A1)],
-          'tracks': <String>['GHOST', 'SORRY', 'I DONT CARE']
+          'tracks': <String>['GHOST', 'SORRY', 'I DONT CARE'],
         },
         {
           'title': 'After Hours',
@@ -3026,7 +3378,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
           'color': 0xFF6A1B9A, // Warna Ungu Cerah
           'icon': Icons.nightlight_round, // Pola Bulan Sabit
           'gradient': <Color>[const Color(0xFF6A1B9A), const Color(0xFF4A00E0)],
-          'tracks': <String>['After Hours']
+          'tracks': <String>['After Hours'],
         },
         {
           'title': 'Currents',
@@ -3035,7 +3387,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
           'color': 0xFF224E6A, // Warna Ocean Blue
           'icon': Icons.waves_rounded, // Pola Gelombang
           'gradient': <Color>[const Color(0xFF224E6A), const Color(0xFF1565C0)],
-          'tracks': <String>['Currents']
+          'tracks': <String>['Currents'],
         },
         {
           'title': 'Starboy',
@@ -3044,17 +3396,26 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
           'color': 0xFF4A148C, // Warna Deep Purple
           'icon': Icons.bar_chart_rounded, // Pola Equalizer Bar
           'gradient': <Color>[const Color(0xFF4A148C), const Color(0xFF311B92)],
-          'tracks': <String>['Starboy']
+          'tracks': <String>['Starboy'],
         },
       ];
     } else {
       if (_isLoading) {
-        return const Center(child: CircularProgressIndicator(color: kColorAccent));
+        return const Center(
+          child: CircularProgressIndicator(color: kColorAccent),
+        );
       }
       if (_apiTracks.isNotEmpty) {
         // Gabungkan semua hasil pencarian ke dalam satu album
-        String albumTitle = _librarySearchQuery.split(' ').map((str) => str.isNotEmpty ? '${str[0].toUpperCase()}${str.substring(1)}' : '').join(' ');
-        
+        String albumTitle = _librarySearchQuery
+            .split(' ')
+            .map(
+              (str) => str.isNotEmpty
+                  ? '${str[0].toUpperCase()}${str.substring(1)}'
+                  : '',
+            )
+            .join(' ');
+
         albums.add({
           'title': albumTitle,
           'artist': 'Search Result',
@@ -3069,7 +3430,10 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
 
       if (albums.isEmpty) {
         return const Center(
-          child: Text('Tidak ada album ditemukan', style: TextStyle(color: Colors.white54)),
+          child: Text(
+            'Tidak ada album ditemukan',
+            style: TextStyle(color: Colors.white54),
+          ),
         );
       }
     }
@@ -3078,10 +3442,11 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       itemCount: albums.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,          // Membagi menjadi 2 kolom menyamping
-        crossAxisSpacing: 16,       // Jarak horizontal antar kartu
-        mainAxisSpacing: 16,        // Jarak vertikal antar kartu
-        childAspectRatio: 0.82,     // Mengatur rasio tinggi/lebar kotak kartu agar teks tidak terpotong
+        crossAxisCount: 2, // Membagi menjadi 2 kolom menyamping
+        crossAxisSpacing: 16, // Jarak horizontal antar kartu
+        mainAxisSpacing: 16, // Jarak vertikal antar kartu
+        childAspectRatio:
+            0.82, // Mengatur rasio tinggi/lebar kotak kartu agar teks tidak terpotong
       ),
       itemBuilder: (context, index) {
         final album = albums[index];
@@ -3092,12 +3457,14 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
               SnackBar(content: Text("Memutar album: ${album['title']}")),
             );
             // Tetap buka detail agar tidak kehilangan fungsionalitas UI lama
-            _showAlbumDetail(album); 
+            _showAlbumDetail(album);
           },
           child: Container(
             decoration: BoxDecoration(
               color: Color(album['color'] as int),
-              borderRadius: BorderRadius.circular(24), // Sudut melengkung halus sesuai gambar
+              borderRadius: BorderRadius.circular(
+                24,
+              ), // Sudut melengkung halus sesuai gambar
             ),
             child: Stack(
               children: [
@@ -3108,22 +3475,25 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                   child: Icon(
                     album['icon'] as IconData,
                     size: 140,
-                    color: Colors.white.withOpacity(0.06), // Opacity sangat tipis (6%) agar terkesan estetik
+                    color: Colors.white.withOpacity(
+                      0.06,
+                    ), // Opacity sangat tipis (6%) agar terkesan estetik
                   ),
                 ),
-                
+
                 // 2. ELEMEN TEKS INFORMASI (Berada di pojok kiri bawah kartu)
                 Padding(
                   padding: const EdgeInsets.all(18.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.end, // Memaksa teks menempel di bawah
+                    mainAxisAlignment:
+                        MainAxisAlignment.end, // Memaksa teks menempel di bawah
                     children: [
                       Text(
                         album['title'] as String,
                         style: const TextStyle(
-                          color: Colors.white, 
-                          fontWeight: FontWeight.bold, 
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
                           fontSize: 18,
                         ),
                         maxLines: 1,
@@ -3133,7 +3503,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                       Text(
                         album['artist'] as String,
                         style: const TextStyle(
-                          color: Colors.white70, 
+                          color: Colors.white70,
                           fontSize: 13,
                         ),
                         maxLines: 1,
@@ -3143,7 +3513,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                       Text(
                         album['year'] as String,
                         style: const TextStyle(
-                          color: Colors.white38, 
+                          color: Colors.white38,
                           fontSize: 11,
                         ),
                       ),
@@ -3174,36 +3544,71 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
           child: Column(
             children: [
               const SizedBox(height: 12),
-              Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(10))),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
               Container(
                 padding: const EdgeInsets.all(24),
                 child: Row(
                   children: [
                     Container(
-                      width: 80, height: 80,
+                      width: 80,
+                      height: 80,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16),
-                        gradient: const LinearGradient(colors: [Color(0xFF7B1FA2), Color(0xFFAB47BC)]),
-                        boxShadow: [BoxShadow(color: const Color(0xFF7B1FA2).withOpacity(0.5), blurRadius: 16, offset: const Offset(0, 6))],
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF7B1FA2), Color(0xFFAB47BC)],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF7B1FA2).withOpacity(0.5),
+                            blurRadius: 16,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
                       ),
-                      child: const Icon(Icons.favorite, color: Colors.white, size: 40),
+                      child: const Icon(
+                        Icons.favorite,
+                        color: Colors.white,
+                        size: 40,
+                      ),
                     ),
                     const SizedBox(width: 20),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Liked Songs', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+                          const Text(
+                            'Liked Songs',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                           const SizedBox(height: 4),
-                          Text('${_favorites.length} lagu • Koleksimu', style: const TextStyle(color: Colors.white54)),
+                          Text(
+                            '${_favorites.length} lagu • Koleksimu',
+                            style: const TextStyle(color: Colors.white54),
+                          ),
                           if (_favorites.isNotEmpty)
                             Padding(
                               padding: const EdgeInsets.only(top: 10),
                               child: ElevatedButton.icon(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF7B1FA2),
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 8,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
                                 ),
                                 onPressed: () {
                                   Navigator.pop(context);
@@ -3211,11 +3616,24 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                                     _playOrPause(_favApiTracks.first);
                                   } else if (_favoriteTracks.isNotEmpty) {
                                     final t = _favoriteTracks.first;
-                                    _playTrack(t['title'] as String, t['url'] as String);
+                                    _playTrack(
+                                      t['title'] as String,
+                                      t['url'] as String,
+                                    );
                                   }
                                 },
-                                icon: const Icon(Icons.play_arrow, size: 18, color: Colors.white),
-                                label: const Text('Putar Semua', style: TextStyle(color: Colors.white, fontSize: 13)),
+                                icon: const Icon(
+                                  Icons.play_arrow,
+                                  size: 18,
+                                  color: Colors.white,
+                                ),
+                                label: const Text(
+                                  'Putar Semua',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13,
+                                  ),
+                                ),
                               ),
                             ),
                         ],
@@ -3232,22 +3650,52 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Container(
-                              width: 80, height: 80,
-                              decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white.withOpacity(0.04)),
-                              child: const Icon(Icons.favorite_border, color: Colors.white24, size: 40),
+                              width: 80,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white.withOpacity(0.04),
+                              ),
+                              child: const Icon(
+                                Icons.favorite_border,
+                                color: Colors.white24,
+                                size: 40,
+                              ),
                             ),
                             const SizedBox(height: 16),
-                            const Text('Belum ada lagu favorit', style: TextStyle(color: Colors.white38, fontSize: 16)),
+                            const Text(
+                              'Belum ada lagu favorit',
+                              style: TextStyle(
+                                color: Colors.white38,
+                                fontSize: 16,
+                              ),
+                            ),
                             const SizedBox(height: 8),
-                            const Text('Tekan ♥ pada lagu untuk menyimpannya di sini', style: TextStyle(color: Colors.white24, fontSize: 13), textAlign: TextAlign.center),
+                            const Text(
+                              'Tekan ♥ pada lagu untuk menyimpannya di sini',
+                              style: TextStyle(
+                                color: Colors.white24,
+                                fontSize: 13,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
                           ],
                         ),
                       )
                     : ListView(
                         padding: const EdgeInsets.all(16),
                         children: [
-                          ..._favApiTracks.map((track) => _buildTrackItemFromApi(track)),
-                          ..._favoriteTracks.map((t) => _buildTrackItem(t['title'] as String, t['subtitle'] as String, t['icon'] as IconData, t['color'] as Color)),
+                          ..._favApiTracks.map(
+                            (track) => _buildTrackItemFromApi(track),
+                          ),
+                          ..._favoriteTracks.map(
+                            (t) => _buildTrackItem(
+                              t['title'] as String,
+                              t['subtitle'] as String,
+                              t['icon'] as IconData,
+                              t['color'] as Color,
+                            ),
+                          ),
                         ],
                       ),
               ),
@@ -3275,7 +3723,14 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
           child: Column(
             children: [
               const SizedBox(height: 12),
-              Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(10))),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
@@ -3288,24 +3743,57 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                 child: Row(
                   children: [
                     Container(
-                      width: 80, height: 80,
+                      width: 80,
+                      height: 80,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        gradient: LinearGradient(colors: [color, color.withOpacity(0.5)]),
-                        boxShadow: [BoxShadow(color: color.withOpacity(0.4), blurRadius: 16, offset: const Offset(0, 6))],
+                        gradient: LinearGradient(
+                          colors: [color, color.withOpacity(0.5)],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: color.withOpacity(0.4),
+                            blurRadius: 16,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
                       ),
                       child: tracks.first.imageUrl.isNotEmpty
-                          ? ClipOval(child: Image.network(tracks.first.imageUrl, fit: BoxFit.cover, errorBuilder: (_, __, ___) => const Icon(Icons.person, color: Colors.white, size: 40)))
-                          : const Icon(Icons.person, color: Colors.white, size: 40),
+                          ? ClipOval(
+                              child: Image.network(
+                                tracks.first.imageUrl,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => const Icon(
+                                  Icons.person,
+                                  color: Colors.white,
+                                  size: 40,
+                                ),
+                              ),
+                            )
+                          : const Icon(
+                              Icons.person,
+                              color: Colors.white,
+                              size: 40,
+                            ),
                     ),
                     const SizedBox(width: 20),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(artistName, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+                          Text(
+                            artistName,
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                           const SizedBox(height: 4),
-                          Text('${tracks.length} lagu • Diikuti', style: const TextStyle(color: Colors.white54)),
+                          Text(
+                            '${tracks.length} lagu • Diikuti',
+                            style: const TextStyle(color: Colors.white54),
+                          ),
                         ],
                       ),
                     ),
@@ -3317,7 +3805,8 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                 child: ListView.builder(
                   padding: const EdgeInsets.all(16),
                   itemCount: tracks.length,
-                  itemBuilder: (context, i) => _buildTrackItemFromApi(tracks[i]),
+                  itemBuilder: (context, i) =>
+                      _buildTrackItemFromApi(tracks[i]),
                 ),
               ),
             ],
@@ -3337,7 +3826,9 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
       tracks = album['api_tracks'];
       isApiTracks = true;
     } else {
-      tracks = _allTracks.where((t) => trackTitles.contains(t['title'])).toList();
+      tracks = _allTracks
+          .where((t) => trackTitles.contains(t['title']))
+          .toList();
     }
 
     showModalBottomSheet(
@@ -3353,7 +3844,14 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
         child: Column(
           children: [
             const SizedBox(height: 12),
-            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(10))),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.white24,
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -3366,19 +3864,46 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
               child: Row(
                 children: [
                   Container(
-                    width: 80, height: 80,
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), color: Colors.black26),
-                    child: Icon(album['icon'] as IconData, color: Colors.white, size: 40),
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: Colors.black26,
+                    ),
+                    child: Icon(
+                      album['icon'] as IconData,
+                      color: Colors.white,
+                      size: 40,
+                    ),
                   ),
                   const SizedBox(width: 20),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(album['title'] as String, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+                        Text(
+                          album['title'] as String,
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                         const SizedBox(height: 4),
-                        Text('${album['artist']} • ${album['year']}', style: const TextStyle(color: Colors.white70, fontSize: 14)),
-                        Text('${tracks.length} lagu', style: const TextStyle(color: Colors.white54, fontSize: 13)),
+                        Text(
+                          '${album['artist']} • ${album['year']}',
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
+                          ),
+                        ),
+                        Text(
+                          '${tracks.length} lagu',
+                          style: const TextStyle(
+                            color: Colors.white54,
+                            fontSize: 13,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -3388,13 +3913,20 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
             const Divider(color: Colors.white10, height: 1),
             Expanded(
               child: tracks.isEmpty
-                  ? const Center(child: Text('Tidak ada lagu tersedia', style: TextStyle(color: Colors.white38)))
+                  ? const Center(
+                      child: Text(
+                        'Tidak ada lagu tersedia',
+                        style: TextStyle(color: Colors.white38),
+                      ),
+                    )
                   : ListView.builder(
                       padding: const EdgeInsets.all(16),
                       itemCount: tracks.length,
                       itemBuilder: (context, i) {
                         if (isApiTracks) {
-                          return _buildTrackItemFromApi(tracks[i] as MusicTrack);
+                          return _buildTrackItemFromApi(
+                            tracks[i] as MusicTrack,
+                          );
                         } else {
                           return _buildTrackItem(
                             tracks[i]['title'] as String,
@@ -3413,152 +3945,215 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
   }
 
   // --- Library Item More Options (context menu ⋮) ---
-  void _showLibraryItemOptions(String title, {bool isUserPlaylist = false, Playlist? playlist}) {
+  void _showLibraryItemOptions(
+    String title, {
+    bool isUserPlaylist = false,
+    Playlist? playlist,
+  }) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: const Color(0xFF0D001A),
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
       builder: (context) => SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const SizedBox(height: 12),
-            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(10))),
-          const SizedBox(height: 10),
-          // Header dengan nama playlist
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-            child: Row(
-              children: [
-                Container(
-                  width: 46,
-                  height: 46,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF7B1FA2), Color(0xFFAB47BC)],
-                    ),
-                  ),
-                  child: Icon(
-                    playlist?.icon ?? Icons.queue_music,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (playlist != null)
-                        Text(
-                          'Playlist • ${playlist.trackTitles.length} tracks',
-                          style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.5)),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Divider(color: Colors.white10, height: 1),
-          const SizedBox(height: 4),
-          ListTile(
-            leading: const Icon(Icons.play_circle_outline, color: Color(0xFFAB47BC)),
-            title: const Text('Putar Sekarang', style: TextStyle(color: Colors.white)),
-            onTap: () => Navigator.pop(context),
-          ),
-          ListTile(
-            leading: const Icon(Icons.queue_music, color: Colors.white70),
-            title: const Text('Tambah ke Antrian', style: TextStyle(color: Colors.white)),
-            onTap: () => Navigator.pop(context),
-          ),
-          ListTile(
-            leading: const Icon(Icons.share_outlined, color: Colors.white70),
-            title: const Text('Bagikan Playlist', style: TextStyle(color: Colors.white)),
-            onTap: () => Navigator.pop(context),
-          ),
-          if (isUserPlaylist && playlist != null) ...[
-            ListTile(
-              leading: const Icon(Icons.add_circle_outline, color: Color(0xFF64B5F6)),
-              title: const Text('Tambahkan Lagu', style: TextStyle(color: Colors.white)),
-              subtitle: Text(
-                'Cari & tambahkan lagu ke playlist ini',
-                style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.4)),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.white24,
+                borderRadius: BorderRadius.circular(10),
               ),
-              onTap: () {
-                Navigator.pop(context);
-                _showAddSongsToPlaylist(playlist);
-              },
             ),
-            ListTile(
-              leading: const Icon(Icons.edit_outlined, color: Colors.white70),
-              title: const Text('Ubah Nama Playlist', style: TextStyle(color: Colors.white)),
-              onTap: () {
-                Navigator.pop(context);
-                _showRenamePlaylistDialog(playlist);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.delete_outline, color: Colors.redAccent),
-              title: const Text('Hapus Playlist', style: TextStyle(color: Colors.redAccent)),
-              onTap: () async {
-                Navigator.pop(context);
-                // Konfirmasi sebelum hapus
-                final confirm = await showDialog<bool>(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    backgroundColor: const Color(0xFF0D001A),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    title: const Text('Hapus Playlist', style: TextStyle(color: Colors.white)),
-                    content: Text(
-                      'Apakah kamu yakin ingin menghapus playlist "$title"? Tindakan ini tidak bisa dibatalkan.',
-                      style: const TextStyle(color: Colors.white70),
+            const SizedBox(height: 10),
+            // Header dengan nama playlist
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              child: Row(
+                children: [
+                  Container(
+                    width: 46,
+                    height: 46,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF7B1FA2), Color(0xFFAB47BC)],
+                      ),
                     ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx, false),
-                        child: const Text('Batal', style: TextStyle(color: Colors.white54)),
-                      ),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.redAccent,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        ),
-                        onPressed: () => Navigator.pop(ctx, true),
-                        child: const Text('Hapus', style: TextStyle(color: Colors.white)),
-                      ),
-                    ],
+                    child: Icon(
+                      playlist?.icon ?? Icons.queue_music,
+                      color: Colors.white,
+                      size: 24,
+                    ),
                   ),
-                );
-                if (confirm == true) {
-                  await _playlistService.remove(playlist.name);
-                  await _loadPlaylists();
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('"$title" dihapus dari library'),
-                        backgroundColor: Colors.redAccent.withOpacity(0.8),
-                      ),
-                    );
-                  }
-                }
-              },
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (playlist != null)
+                          Text(
+                            'Playlist • ${playlist.trackTitles.length} tracks',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.white.withOpacity(0.5),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
+            const Divider(color: Colors.white10, height: 1),
+            const SizedBox(height: 4),
+            ListTile(
+              leading: const Icon(
+                Icons.play_circle_outline,
+                color: Color(0xFFAB47BC),
+              ),
+              title: const Text(
+                'Putar Sekarang',
+                style: TextStyle(color: Colors.white),
+              ),
+              onTap: () => Navigator.pop(context),
+            ),
+            ListTile(
+              leading: const Icon(Icons.queue_music, color: Colors.white70),
+              title: const Text(
+                'Tambah ke Antrian',
+                style: TextStyle(color: Colors.white),
+              ),
+              onTap: () => Navigator.pop(context),
+            ),
+            ListTile(
+              leading: const Icon(Icons.share_outlined, color: Colors.white70),
+              title: const Text(
+                'Bagikan Playlist',
+                style: TextStyle(color: Colors.white),
+              ),
+              onTap: () => Navigator.pop(context),
+            ),
+            if (isUserPlaylist && playlist != null) ...[
+              ListTile(
+                leading: const Icon(
+                  Icons.add_circle_outline,
+                  color: Color(0xFF64B5F6),
+                ),
+                title: const Text(
+                  'Tambahkan Lagu',
+                  style: TextStyle(color: Colors.white),
+                ),
+                subtitle: Text(
+                  'Cari & tambahkan lagu ke playlist ini',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.white.withOpacity(0.4),
+                  ),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showAddSongsToPlaylist(playlist);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.edit_outlined, color: Colors.white70),
+                title: const Text(
+                  'Ubah Nama Playlist',
+                  style: TextStyle(color: Colors.white),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showRenamePlaylistDialog(playlist);
+                },
+              ),
+              ListTile(
+                leading: const Icon(
+                  Icons.delete_outline,
+                  color: Colors.redAccent,
+                ),
+                title: const Text(
+                  'Hapus Playlist',
+                  style: TextStyle(color: Colors.redAccent),
+                ),
+                onTap: () async {
+                  Navigator.pop(context);
+                  // Konfirmasi sebelum hapus
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      backgroundColor: const Color(0xFF0D001A),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      title: const Text(
+                        'Hapus Playlist',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      content: Text(
+                        'Apakah kamu yakin ingin menghapus playlist "$title"? Tindakan ini tidak bisa dibatalkan.',
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, false),
+                          child: const Text(
+                            'Batal',
+                            style: TextStyle(color: Colors.white54),
+                          ),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.redAccent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          onPressed: () => Navigator.pop(ctx, true),
+                          child: const Text(
+                            'Hapus',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirm == true) {
+                    await _playlistService.remove(playlist.name);
+                    await _loadPlaylists();
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('"$title" dihapus dari library'),
+                          backgroundColor: Colors.redAccent.withOpacity(0.8),
+                        ),
+                      );
+                    }
+                  }
+                },
+              ),
+            ],
+            const SizedBox(height: 20),
           ],
-          const SizedBox(height: 20),
-        ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   // --- Dialog Tambah Lagu ke Playlist ---
   void _showAddSongsToPlaylist(Playlist playlist) {
@@ -3571,9 +4166,16 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
         builder: (context, setSheetState) {
           final allAvailable = _allTracks
               .where((t) => !playlist.trackTitles.contains(t['title']))
-              .where((t) => searchQuery.isEmpty ||
-                  (t['title'] as String).toLowerCase().contains(searchQuery.toLowerCase()) ||
-                  (t['subtitle'] as String).toLowerCase().contains(searchQuery.toLowerCase()))
+              .where(
+                (t) =>
+                    searchQuery.isEmpty ||
+                    (t['title'] as String).toLowerCase().contains(
+                      searchQuery.toLowerCase(),
+                    ) ||
+                    (t['subtitle'] as String).toLowerCase().contains(
+                      searchQuery.toLowerCase(),
+                    ),
+              )
               .toList();
 
           return Container(
@@ -3585,7 +4187,14 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
             child: Column(
               children: [
                 const SizedBox(height: 12),
-                Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(10))),
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
                   child: Row(
@@ -3594,8 +4203,21 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Tambahkan Lagu', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
-                            Text('ke ${playlist.name}', style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.5))),
+                            const Text(
+                              'Tambahkan Lagu',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            Text(
+                              'ke ${playlist.name}',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.white.withOpacity(0.5),
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -3619,10 +4241,18 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                       style: const TextStyle(color: Colors.white, fontSize: 14),
                       decoration: InputDecoration(
                         hintText: 'Cari lagu...',
-                        hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
-                        prefixIcon: const Icon(Icons.search, color: Colors.white38, size: 20),
+                        hintStyle: TextStyle(
+                          color: Colors.white.withOpacity(0.3),
+                        ),
+                        prefixIcon: const Icon(
+                          Icons.search,
+                          color: Colors.white38,
+                          size: 20,
+                        ),
                         border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                        ),
                       ),
                       onChanged: (v) => setSheetState(() => searchQuery = v),
                     ),
@@ -3635,13 +4265,20 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.music_off, color: Colors.white12, size: 48),
+                              const Icon(
+                                Icons.music_off,
+                                color: Colors.white12,
+                                size: 48,
+                              ),
                               const SizedBox(height: 12),
                               Text(
                                 searchQuery.isEmpty
                                     ? 'Semua lagu sudah ada di playlist ini'
                                     : 'Tidak ada lagu yang cocok',
-                                style: const TextStyle(color: Colors.white30, fontSize: 14),
+                                style: const TextStyle(
+                                  color: Colors.white30,
+                                  fontSize: 14,
+                                ),
                               ),
                             ],
                           ),
@@ -3658,20 +4295,47 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                                 height: 44,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(8),
-                                  color: (track['color'] as Color).withOpacity(0.3),
+                                  color: (track['color'] as Color).withOpacity(
+                                    0.3,
+                                  ),
                                 ),
-                                child: Icon(track['icon'] as IconData, color: track['color'] as Color, size: 22),
+                                child: Icon(
+                                  track['icon'] as IconData,
+                                  color: track['color'] as Color,
+                                  size: 22,
+                                ),
                               ),
-                              title: Text(trackTitle, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500)),
-                              subtitle: Text(track['subtitle'] as String, style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 12)),
+                              title: Text(
+                                trackTitle,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              subtitle: Text(
+                                track['subtitle'] as String,
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.4),
+                                  fontSize: 12,
+                                ),
+                              ),
                               trailing: IconButton(
-                                icon: const Icon(Icons.add_circle, color: Color(0xFFAB47BC), size: 28),
+                                icon: const Icon(
+                                  Icons.add_circle,
+                                  color: Color(0xFFAB47BC),
+                                  size: 28,
+                                ),
                                 onPressed: () async {
                                   // Tambah lagu ke playlist via PlaylistService
                                   final all = _playlistService.getAll();
-                                  final idx = all.indexWhere((p) => p['name'] == playlist.name);
+                                  final idx = all.indexWhere(
+                                    (p) => p['name'] == playlist.name,
+                                  );
                                   if (idx != -1) {
-                                    final titles = List<String>.from(all[idx]['trackTitles'] as List);
+                                    final titles = List<String>.from(
+                                      all[idx]['trackTitles'] as List,
+                                    );
                                     if (!titles.contains(trackTitle)) {
                                       titles.add(trackTitle);
                                       all[idx]['trackTitles'] = titles;
@@ -3679,10 +4343,16 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                                       await _loadPlaylists();
                                       setSheetState(() {});
                                       if (mounted) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
                                           SnackBar(
-                                            content: Text('"$trackTitle" ditambahkan ke ${playlist.name}'),
-                                            backgroundColor: const Color(0xFF7B1FA2).withOpacity(0.9),
+                                            content: Text(
+                                              '"$trackTitle" ditambahkan ke ${playlist.name}',
+                                            ),
+                                            backgroundColor: const Color(
+                                              0xFF7B1FA2,
+                                            ).withOpacity(0.9),
                                           ),
                                         );
                                       }
@@ -3718,14 +4388,26 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
           decoration: const InputDecoration(
             hintText: 'Nama baru...',
             hintStyle: TextStyle(color: Colors.white24),
-            enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
-            focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: kColorAccent)),
+            enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.white24),
+            ),
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: kColorAccent),
+            ),
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal', style: TextStyle(color: Colors.white54))),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal', style: TextStyle(color: Colors.white54)),
+          ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: kColorAccent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: kColorAccent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
             onPressed: () async {
               if (ctrl.text.trim().isNotEmpty) {
                 final oldName = playlist.name;
@@ -3735,7 +4417,9 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                 if (mounted) {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Nama playlist berhasil diubah!')),
+                    const SnackBar(
+                      content: Text('Nama playlist berhasil diubah!'),
+                    ),
                   );
                 }
               }
@@ -3743,36 +4427,6 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
             child: const Text('Simpan', style: TextStyle(color: Colors.white)),
           ),
         ],
-      ),
-    );
-  }
-
-  // --- Widget Playlist Tile ---
-  Widget _buildPlaylistTile(Playlist playlist) {
-    return ListTile(
-      onTap: () => _showPlaylistDetail(playlist),
-      contentPadding: EdgeInsets.zero,
-      leading: Container(
-        width: 50,
-        height: 50,
-        decoration: BoxDecoration(
-          color: playlist.color.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Icon(playlist.icon, color: playlist.color),
-      ),
-      title: Text(
-        playlist.name,
-        style: const TextStyle(fontWeight: FontWeight.bold),
-      ),
-      subtitle: Text(
-        '${playlist.trackTitles.length} lagu',
-        style: const TextStyle(color: Colors.white54),
-      ),
-      trailing: const Icon(
-        Icons.arrow_forward_ios,
-        size: 16,
-        color: Colors.white54,
       ),
     );
   }
@@ -4119,32 +4773,6 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
     );
   }
 
-  Widget _buildGenreCard(String title, Color color) {
-    return GestureDetector(
-      onTap: () {
-        _searchController.text = title;
-        _fetchMusicData(title);
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.5)),
-        ),
-        child: Center(
-          child: Text(
-            title,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   // ==========================================
   // Player Logic & UI
   // ==========================================
@@ -4154,7 +4782,9 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
     }
     if (_currentPlayingTitle != null) {
       try {
-        final track = _allTracks.firstWhere((t) => t['title'] == _currentPlayingTitle);
+        final track = _allTracks.firstWhere(
+          (t) => t['title'] == _currentPlayingTitle,
+        );
         return MusicTrack(
           id: track['title'] as String,
           title: track['title'] as String,
@@ -4181,14 +4811,14 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
   void _handlePlayerError(dynamic e) {
     if (!mounted) return;
     final errorStr = e.toString().toLowerCase();
-    if (errorStr.contains('abort') || 
-        errorStr.contains('pause') || 
+    if (errorStr.contains('abort') ||
+        errorStr.contains('pause') ||
         errorStr.contains('interrupt')) {
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Gagal memutar audio: $e')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Gagal memutar audio: $e')));
   }
 
   void _playTrack(String title, String url) async {
@@ -4271,10 +4901,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
       decoration: BoxDecoration(
         color: const Color(0xFF1A0030),
         borderRadius: BorderRadius.circular(40),
-        border: Border.all(
-          color: track.color.withOpacity(0.3),
-          width: 1,
-        ),
+        border: Border.all(color: track.color.withOpacity(0.3), width: 1),
         boxShadow: [
           BoxShadow(
             color: track.color.withOpacity(0.15),
@@ -4373,7 +5000,9 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                   color: Colors.white70,
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Mencari perangkat untuk cast...')),
+                      const SnackBar(
+                        content: Text('Mencari perangkat untuk cast...'),
+                      ),
                     );
                   },
                 ),
@@ -4401,7 +5030,12 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
                 color: Colors.white.withOpacity(0.1),
                 child: FractionallySizedBox(
                   alignment: Alignment.centerLeft,
-                  widthFactor: _duration.inSeconds > 0 ? (_position.inSeconds / _duration.inSeconds).clamp(0.0, 1.0) : 0.3,
+                  widthFactor: _duration.inSeconds > 0
+                      ? (_position.inSeconds / _duration.inSeconds).clamp(
+                          0.0,
+                          1.0,
+                        )
+                      : 0.3,
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(2),
@@ -4417,104 +5051,6 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
         ],
       ),
     );
-  }
-
-  // --- Simulasi Impor Spotify ---
-  void _showSpotifyImportDialog() {
-    final controller = TextEditingController(
-      text: 'https://api.spotify.com/v1/albums/4aawyAB9vmq7uU72jRu96y',
-    );
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: kColorSurface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Row(
-          children: [
-            const Icon(
-              Icons.library_music,
-              color: Color.fromARGB(255, 115, 0, 113),
-            ),
-            const SizedBox(width: 10),
-            const Text('Spotify Album URL'),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Masukkan endpoint Spotify API untuk mengimpor daftar lagu.',
-              style: TextStyle(fontSize: 13, color: Colors.white54),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: controller,
-              style: const TextStyle(color: Colors.white, fontSize: 13),
-              decoration: const InputDecoration(
-                labelText: 'API Link',
-                labelStyle: TextStyle(color: Color.fromARGB(255, 60, 245, 255)),
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white24),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Color.fromARGB(255, 111, 4, 173),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal', style: TextStyle(color: Colors.white54)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color.fromARGB(255, 95, 7, 167),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-              _simulateSpotifyFetch(controller.text);
-            },
-            child: const Text('Impor', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _simulateSpotifyFetch(String url) {
-    // Simulasi loading
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) =>
-          const Center(child: CircularProgressIndicator(color: kColorAccent)),
-    );
-
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        Navigator.pop(context); // Close loading
-        setState(() {
-          _userPlaylists.add(
-            Playlist(
-              name: 'Spotify Album: Justice',
-              trackTitles: ['GHOST', 'SORRY', 'I DONT CARE'],
-              color: const Color.fromARGB(255, 115, 11, 219),
-              icon: Icons.album,
-            ),
-          );
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Album berhasil diimpor dari Spotify!')),
-        );
-      }
-    });
   }
 }
 
@@ -4556,6 +5092,12 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _saveString(String key, String value) async {
     await _prefs?.setString(key, value);
+  }
+
+  bool _isValidEmail(String email) {
+    final emailRegex = RegExp(
+      r"^[a-zA-Z0-9.!#%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$");
+    return emailRegex.hasMatch(email);
   }
 
   @override
@@ -4763,6 +5305,8 @@ class _SettingsPageState extends State<SettingsPage> {
             const SizedBox(height: 16),
             TextField(
               controller: emailController,
+              keyboardType: TextInputType.emailAddress,
+              autocorrect: false,
               style: const TextStyle(color: Colors.white),
               decoration: const InputDecoration(
                 labelText: 'Email',
@@ -4792,7 +5336,31 @@ class _SettingsPageState extends State<SettingsPage> {
             onPressed: () async {
               final newName = nameController.text.trim();
               final newEmail = emailController.text.trim();
-              await _saveString('local_username', newName.isEmpty ? 'Pengguna' : newName);
+
+              if (newEmail.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Email tidak boleh kosong.'),
+                    backgroundColor: Colors.redAccent,
+                  ),
+                );
+                return;
+              }
+
+              if (!_isValidEmail(newEmail)) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Format email tidak valid.'),
+                    backgroundColor: Colors.redAccent,
+                  ),
+                );
+                return;
+              }
+
+              await _saveString(
+                'local_username',
+                newName.isEmpty ? 'Pengguna' : newName,
+              );
               await _saveString('local_email', newEmail);
               setState(() {
                 _userName = newName.isEmpty ? 'Pengguna' : newName;
@@ -5000,7 +5568,28 @@ class _LibraryWaveformPainter extends CustomPainter {
       paint,
       [const Color(0xFF4A148C), const Color(0xFF880E4F)],
       0.7,
-      [0.3, 0.5, 0.8, 0.6, 0.9, 0.4, 0.7, 0.5, 0.8, 0.3, 0.6, 0.9, 0.4, 0.7, 0.5, 0.8, 0.6, 0.3, 0.5, 0.7],
+      [
+        0.3,
+        0.5,
+        0.8,
+        0.6,
+        0.9,
+        0.4,
+        0.7,
+        0.5,
+        0.8,
+        0.3,
+        0.6,
+        0.9,
+        0.4,
+        0.7,
+        0.5,
+        0.8,
+        0.6,
+        0.3,
+        0.5,
+        0.7,
+      ],
       0.5,
     );
 
@@ -5010,7 +5599,28 @@ class _LibraryWaveformPainter extends CustomPainter {
       paint,
       [const Color(0xFF7B1FA2), const Color(0xFFAD1457)],
       0.5,
-      [0.2, 0.6, 0.4, 0.8, 0.3, 0.7, 0.5, 0.9, 0.4, 0.6, 0.8, 0.3, 0.5, 0.7, 0.6, 0.4, 0.8, 0.5, 0.3, 0.7],
+      [
+        0.2,
+        0.6,
+        0.4,
+        0.8,
+        0.3,
+        0.7,
+        0.5,
+        0.9,
+        0.4,
+        0.6,
+        0.8,
+        0.3,
+        0.5,
+        0.7,
+        0.6,
+        0.4,
+        0.8,
+        0.5,
+        0.3,
+        0.7,
+      ],
       0.4,
     );
 
@@ -5020,7 +5630,28 @@ class _LibraryWaveformPainter extends CustomPainter {
       paint,
       [const Color(0xFFCE93D8), const Color(0xFFE91E63)],
       0.3,
-      [0.4, 0.7, 0.3, 0.9, 0.5, 0.8, 0.4, 0.6, 0.7, 0.3, 0.5, 0.8, 0.6, 0.4, 0.9, 0.3, 0.7, 0.5, 0.4, 0.6],
+      [
+        0.4,
+        0.7,
+        0.3,
+        0.9,
+        0.5,
+        0.8,
+        0.4,
+        0.6,
+        0.7,
+        0.3,
+        0.5,
+        0.8,
+        0.6,
+        0.4,
+        0.9,
+        0.3,
+        0.7,
+        0.5,
+        0.4,
+        0.6,
+      ],
       0.35,
     );
   }

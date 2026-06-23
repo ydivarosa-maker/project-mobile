@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Menyimpan nama pengguna secara lokal di SharedPreferences.
 class AuthService {
   static const String _userNameKey = 'local_username';
+  static const String _emailKey = 'local_email';
   static const String _isLoggedInKey = 'local_is_logged_in';
 
   String? _displayName;
@@ -17,12 +18,24 @@ class AuthService {
   Future<void> _loadFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
     _displayName = prefs.getString(_userNameKey);
-    _email = prefs.getString('local_email');
+    _email = prefs.getString(_emailKey);
     _loggedIn = prefs.getBool(_isLoggedInKey) ?? false;
   }
 
   Future<void> reload() async {
     await _loadFromPrefs();
+  }
+
+  Future<void> updateDisplayName(String name) async {
+    final prefs = await SharedPreferences.getInstance();
+    _displayName = name.trim().isEmpty ? 'Pengguna' : name.trim();
+    await prefs.setString(_userNameKey, _displayName!);
+  }
+
+  Future<void> updateEmail(String email) async {
+    final prefs = await SharedPreferences.getInstance();
+    _email = email.trim();
+    await prefs.setString(_emailKey, _email!);
   }
 
   // Getter kompatibel dengan kode lama

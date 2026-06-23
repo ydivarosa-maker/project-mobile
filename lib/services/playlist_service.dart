@@ -1,42 +1,35 @@
-import 'package:hive_flutter/hive_flutter.dart';
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-/// Konstanta ikon yang bisa disimpan dan dipulihkan
-const List<int> _iconCodepoints = [
-  0xe415, // Icons.playlist_play
-  0xe87d, // Icons.favorite
-  0xe030, // Icons.library_music
-  0xe30f, // Icons.coffee
-  0xe025, // Icons.album
-  0xe3a9, // Icons.headphones
-  0xe8b6, // Icons.star
-  0xe048, // Icons.music_note
-];
-
-/// Layanan penyimpanan Playlist menggunakan Hive (NoSQL lokal)
+/// PlaylistService menggunakan `SharedPreferences` sebagai pengganti Hive.
 class PlaylistService {
-  static const String _boxName = 'melodya_playlists';
+  static const String _prefsKey = 'melodya_playlists_storage';
+  static late SharedPreferences _prefs;
 
+  /// Inisialisasi: dipanggil sekali di startup
   static Future<void> init() async {
-    await Hive.openBox(_boxName);
+    _prefs = await SharedPreferences.getInstance();
   }
 
-  Box get _box => Hive.box(_boxName);
-
-  // --- Ambil semua playlist ---
   List<Map<String, dynamic>> getAll() {
-    final raw = _box.get('playlists', defaultValue: <dynamic>[]);
-    return List<Map<String, dynamic>>.from(
-      (raw as List).map((item) => Map<String, dynamic>.from(item as Map)),
-    );
+    final raw = _prefs.getString(_prefsKey);
+    if (raw == null || raw.isEmpty) return <Map<String, dynamic>>[];
+    try {
+      final decoded = json.decode(raw) as List<dynamic>;
+      return List<Map<String, dynamic>>.from(
+        decoded.map((e) => Map<String, dynamic>.from(e as Map)),
+      );
+    } catch (_) {
+      return <Map<String, dynamic>>[];
+    }
   }
 
-  // --- Simpan semua playlist ---
   Future<void> _saveAll(List<Map<String, dynamic>> playlists) async {
-    await _box.put('playlists', playlists);
+    final encoded = json.encode(playlists);
+    await _prefs.setString(_prefsKey, encoded);
   }
 
-  // --- Tambah playlist baru ---
   Future<void> add({
     required String name,
     List<String> trackTitles = const [],
@@ -53,14 +46,12 @@ class PlaylistService {
     await _saveAll(all);
   }
 
-  // --- Hapus playlist berdasarkan nama ---
   Future<void> remove(String name) async {
     final all = getAll();
     all.removeWhere((pl) => pl['name'] == name);
     await _saveAll(all);
   }
 
-  // --- Ganti nama playlist ---
   Future<void> rename(String oldName, String newName) async {
     final all = getAll();
     for (final pl in all) {
@@ -72,12 +63,10 @@ class PlaylistService {
     await _saveAll(all);
   }
 
-  // --- Simpan ulang semua dari objek Playlist ---
   Future<void> saveFromList(List<Map<String, dynamic>> playlists) async {
     await _saveAll(playlists);
   }
 
-  // --- Inisialisasi data default jika kosong ---
   Future<void> initDefaults() async {
     if (getAll().isEmpty) {
       await _saveAll([
@@ -115,7 +104,6 @@ class PlaylistService {
     }
   }
 
-  // --- Helper: konversi iconCodepoint ke IconData ---
   static IconData iconFromCodepoint(int codepoint) {
     return IconData(codepoint, fontFamily: 'MaterialIcons');
   }
