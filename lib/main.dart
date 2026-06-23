@@ -1720,54 +1720,60 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
     }
 
     if (_selectedCategory == 'Podcast') {
-      return Container(
-        key: const ValueKey('podcast'),
-        height: 180,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [kColorAccentCyan, kColorAccent], // Biru ke Hijau
-          ),
-          image: const DecorationImage(
-            image: AssetImage('assets/images/featured_podcast.jpg'),
-            fit: BoxFit.cover,
+      return AspectRatio(
+        aspectRatio: 960 / 391,
+        child: Container(
+          key: const ValueKey('podcast'),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [kColorAccentCyan, kColorAccent], // Biru ke Hijau
+            ),
+            image: const DecorationImage(
+              image: AssetImage('assets/images/featured_podcast.jpg'),
+              fit: BoxFit.cover,
+            ),
           ),
         ),
       );
     } else if (_selectedCategory == 'Musik') {
-      return Container(
-        key: const ValueKey('musik'),
-        height: 180,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [kColorAccentCyan, kColorAccent], // Pink ke Ungu
-          ),
-          image: const DecorationImage(
-            image: AssetImage('assets/images/featured_musik.jpg'),
-            fit: BoxFit.cover,
+      return AspectRatio(
+        aspectRatio: 960 / 380,
+        child: Container(
+          key: const ValueKey('musik'),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [kColorAccentCyan, kColorAccent], // Pink ke Ungu
+            ),
+            image: const DecorationImage(
+              image: AssetImage('assets/images/featured_musik.jpg'),
+              fit: BoxFit.cover,
+            ),
           ),
         ),
       );
     } else {
       // Semua
-      return Container(
-        key: const ValueKey('semua'),
-        height: 180,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [kColorAccent, kColorAccentPurple], // Pink ke Ungu
-          ),
-          image: const DecorationImage(
-            image: AssetImage('assets/images/featured_pop.jpg'),
-            fit: BoxFit.cover,
+      return AspectRatio(
+        aspectRatio: 992 / 375,
+        child: Container(
+          key: const ValueKey('semua'),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [kColorAccent, kColorAccentPurple], // Pink ke Ungu
+            ),
+            image: const DecorationImage(
+              image: AssetImage('assets/images/featured_pop.jpg'),
+              fit: BoxFit.cover,
+            ),
           ),
         ),
       );
@@ -1785,7 +1791,7 @@ class _MobileAppLayoutState extends State<MobileAppLayout>
 
     return Container(
       key: const ValueKey('now_playing'),
-      constraints: const BoxConstraints(minHeight: 180),
+      constraints: const BoxConstraints(minHeight: 220),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         gradient: LinearGradient(
